@@ -21,7 +21,8 @@
                     <div class="dropdown-content">
                         <a href="{{ url_for('main.change_password') }}" class="profile-link">Change Password</a>
                         {% if current_user.admin %}
-                        <a href="{{ url_for('main.admin') }}" class="admin-link">Admin</a>
+                        <a href="{{ url_for('main.admin') }}" class="admin-link">User Management</a>
+                        <a href="{{ url_for('main.admin_matches') }}" class="admin-link">Match Management</a>
                         {% endif %}
                         <a href="{{ url_for('main.logout') }}">Logout</a>
                     </div>

@@ -4,6 +4,12 @@
 <div class="container">
     <h1>User Management</h1>
     
+    <p class="description">View and manage users. Enable registered players to log in and record matches.</p>
+    
+    <div class="admin-nav">
+        <a href="{{ url_for('main.admin_matches') }}" class="nav-button">📊 Match Management</a>
+    </div>
+    
     <div class="admin-filters">
         <button class="filter-btn" data-filter="all" onclick="filterUsers('all')">All Users</button>
         <button class="filter-btn" data-filter="enabled" onclick="filterUsers('enabled')">Active Users</button>
@@ -47,6 +53,7 @@
                 </form>
                 {% endif %}
 
+                {% if current_user.id == 1 %}
                 {% if not user.admin %}
                 <form method="POST" action="{{ url_for('main.admin_make_admin', user_id=user.id) }}" class="inline-form">
                     <button type="submit" class="action-btn make-admin">Make Admin</button>
@@ -57,7 +64,6 @@
                 </form>
                 {% endif %}
 
-                {% if current_user.id == 1 %}
                 <!-- Remove User Button -->
                 <form method="POST" action="{{ url_for('main.admin_remove_user', user_id=user.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to remove this user?');">
                     <button type="submit" class="action-btn reset" title="Remove User">Remove</button>
@@ -70,6 +76,42 @@
 </div>
 
 <style>
+.description {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2em;
+    font-size: 0.95em;
+    background: #f9f9f9;
+    padding: 1em;
+    border-radius: 4px;
+    border-left: 4px solid #ffb400;
+}
+
+.admin-nav {
+    margin: 1em 0 2em;
+    display: flex;
+    gap: 1em;
+    justify-content: flex-start;
+}
+
+.nav-button {
+    display: inline-block;
+    padding: 0.75em 1.5em;
+    background: #222e50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 1px solid #222e50;
+}
+
+.nav-button:hover {
+    background: #2d3b63;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(34,46,80,0.2);
+}
+
 .admin-filters {
     margin: 1em 0 2em;
     display: flex;

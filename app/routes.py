@@ -275,6 +275,59 @@ def admin_remove_user(user_id):
     flash(f'User {user.username} has been removed.', 'success')
     return redirect(url_for('main.admin'))
 
+@main.route('/admin/matches')
+@login_required
+@admin_required
+def admin_matches():
+    page = request.args.get('page', 1, type=int)
+    matches = Match.query.order_by(Match.date_played.desc()).paginate(
+        page=page,
+        per_page=50,
+        error_out=False
+    )
+    return render_template('admin_matches.html', matches=matches)
+
+@main.route('/admin/match/<int:match_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def admin_delete_match(match_id):
+    match = Match.query.get_or_404(match_id)
+    
+    # Get the winner and loser
+    winner = match.winner
+    loser = match.loser
+    
+    # Reverse the ELO changes
+    winner.elo -= match.winner_elo_gain
+    loser.elo -= match.loser_elo_loss  # loser_elo_loss is negative, so this adds back the lost ELO
+    
+    # Reverse the match statistics
+    winner.matches_played -= 1
+    winner.matches_won -= 1
+    winner.one_eighties -= match.winner_180s
+    if match.winning_finish >= 100:
+        winner.high_finishes -= 1
+    
+    loser.matches_played -= 1
+    loser.matches_lost -= 1
+    loser.one_eighties -= match.loser_180s
+    
+    # Check if this was the highest finish for the winner
+    if match.winning_finish == winner.highest_finish:
+        # Find the new highest finish from remaining matches
+        remaining_matches = Match.query.filter(
+            Match.winner_id == winner.id,
+            Match.id != match_id
+        ).order_by(Match.winning_finish.desc()).first()
+        winner.highest_finish = remaining_matches.winning_finish if remaining_matches else 0
+    
+    # Delete the match
+    db.session.delete(match)
+    db.session.commit()
+    
+    flash(f'Match deleted successfully. ELO restored: {winner.username} (-{match.winner_elo_gain}), {loser.username} (+{abs(match.loser_elo_loss)})', 'success')
+    return redirect(url_for('main.admin_matches'))
+
 @main.route('/matches')
 def matches():
     page = request.args.get('page', 1, type=int)
