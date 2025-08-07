@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Login</h1>
+    <form method="POST" class="lined-form">
+        <table class="form-table">
+            <tr>
+                <td><label for="username">Username:</label></td>
+                <td class="input-cell">
+                    <div class="input-container">
+                        <input type="text" id="username" name="username" required>
+                        <div class="line"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="password">Password:</label></td>
+                <td class="input-cell">
+                    <div class="input-container">
+                        <input type="password" id="password" name="password" required>
+                        <div class="line"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="input-cell">
+                    <button type="submit" class="auth-button">Login</button>
+                    <a href="{{ url_for('main.register') }}" class="register-button">Register</a>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="input-cell">
+                    <a href="{{ url_for('main.forgot_password') }}" class="forgot-password-link">Forgot Password?</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<style>
+.register-button {
+    display: inline-block;
+    padding: 12px 24px;
+    margin-left: 1em;
+    background: #f0f0f0;
+    color: #333;
+    text-decoration: none;
+    border-radius: 3px;
+    border: 0px solid #ddd;
+    text-align: center;
+    vertical-align: top;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.register-button:hover {
+    background: #e0e0e0;
+    border-color: #ccc;
+    transform: translateY(-1px);
+}
+
+.forgot-password-link {
+    display: inline-block;
+    margin-top: 1em;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.forgot-password-link:hover {
+    color: #333;
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

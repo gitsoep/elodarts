@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Player Statistics</h1>
+    
+    <div class="player-select">
+        <form method="GET" action="{{ url_for('main.stats') }}">
+            <label for="player">Select Player:</label>
+            <select name="player" id="player" onchange="this.form.submit()">
+                <option value="">All Players</option>
+                {% for user in users %}
+                <option value="{{ user.id }}" {% if selected_player and selected_player.id == user.id %}selected{% endif %}>
+                    {{ user.username }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    {% if selected_player %}
+        <h2>{{ selected_player.username }}'s Statistics</h2>
+        
+        <!-- ELO Rating Graph - Move to top for better visibility -->
+        <div class="chart-container">
+            <canvas id="eloChart"></canvas>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h3>Overall</h3>
+                <p>Matches Played: {{ selected_player.matches_played }}</p>
+                <p>Wins: {{ selected_player.matches_won }}</p>
+                <p>Losses: {{ selected_player.matches_lost }}</p>
+                <p>Win Rate: {{ "%.1f"|format(selected_player.matches_won / selected_player.matches_played * 100 if selected_player.matches_played > 0 else 0) }}%</p>
+                <p>Current ELO: {{ selected_player.elo }}</p>
+            </div>
+            <div class="stat-box">
+                <h3>Achievements</h3>
+                <p>180's: {{ selected_player.one_eighties }}</p>
+                <p>180's per Match: {{ "%.2f"|format(selected_player.one_eighties / selected_player.matches_played if selected_player.matches_played > 0 else 0) }}</p>
+                <p>100+ Finishes: {{ selected_player.high_finishes }}</p>
+                <p>Highest Finish: {{ selected_player.highest_finish }}</p>
+            </div>
+        </div>
+
+        <h3>Recent High Finishes</h3>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Finish</th>
+                <th>Against</th>
+            </tr>
+            {% for match in high_finishes %}
+            <tr>
+                <td>{{ match.date_played.strftime('%Y-%m-%d') }}</td>
+                <td>{{ match.winning_finish }}</td>
+                <td>{{ match.loser.username }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h3>Recent 180s</h3>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Match</th>
+                <th>180s in Match</th>
+            </tr>
+            {% for match in recent_180s %}
+            <tr>
+                <td>{{ match.date_played.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if match.winner_id == selected_player.id %}
+                        vs {{ match.loser.username }} (Won)
+                    {% else %}
+                        vs {{ match.winner.username }} (Lost)
+                    {% endif %}
+                </td>
+                <td>
+                    {% if match.winner_id == selected_player.id %}
+                        {{ match.winner_180s }}
+                    {% else %}
+                        {{ match.loser_180s }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+        <h2>Overall Statistics</h2>
+        <table>
+            <tr>
+                <th>Player</th>
+                <th>Matches</th>
+                <th>Win Rate</th>
+                <th>180s</th>
+                <th>100+ Finishes</th>
+                <th>Current ELO</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td><a href="{{ url_for('main.stats', player=user.id) }}">{{ user.username }}</a></td>
+                <td>{{ user.matches_played }}</td>
+                <td>{{ "%.1f"|format(user.matches_won / user.matches_played * 100 if user.matches_played > 0 else 0) }}%</td>
+                <td>{{ user.one_eighties }}</td>
+                <td>{{ user.high_finishes }}</td>
+                <td>{{ user.elo }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</div>
+
+<style>
+.player-select {
+    margin: 2em 0;
+    text-align: center;
+}
+
+.player-select select {
+    padding: 0.5em;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-left: 0.5em;
+}
+
+.chart-container {
+    background: white;
+    padding: 2em;
+    margin: 2em 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    min-height: 500px;
+}
+
+.chart-container h3 {
+    margin-bottom: 1em;
+    color: #222e50;
+    text-align: center;
+}
+
+#eloChart {
+    width: 100% !important;
+    height: 400px !important;
+    max-width: 100%;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2em;
+    margin: 2em 0;
+}
+
+.stat-box {
+    background: #f7f9fb;
+    padding: 1.5em;
+    border-radius: 8px;
+    border-left: 4px solid #222e50;
+}
+
+.stat-box h3 {
+    margin-bottom: 1em;
+    color: #222e50;
+}
+
+.stat-box p {
+    margin: 0.5em 0;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+table th, table td {
+    padding: 1em;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+table th {
+    background: #f7f9fb;
+    color: #222e50;
+    font-weight: bold;
+}
+
+table tr:hover {
+    background: #f9f9f9;
+}
+</style>
+
+{% if selected_player %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Loading ELO chart for player {{ selected_player.id }}');
+    
+    // Get ELO history data from the backend
+    fetch(`/api/elo_history/{{ selected_player.id }}`)
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('ELO data received:', data);
+            
+            if (!data.dates || !data.elo_values || data.dates.length === 0) {
+                document.getElementById('eloChart').style.display = 'none';
+                document.querySelector('.chart-container h3').innerHTML = 'No match history available';
+                return;
+            }
+            
+            const ctx = document.getElementById('eloChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'ELO Rating',
+                        data: data.elo_values,
+                        borderColor: '#222e50',
+                        backgroundColor: 'rgba(34, 46, 80, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#222e50',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: `ELO Progress for {{ selected_player.username }}`,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            color: '#222e50'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'ELO Rating',
+                                color: '#666',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date',
+                                color: '#666',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching ELO history:', error);
+            document.getElementById('eloChart').style.display = 'none';
+            document.querySelector('.chart-container h3').innerHTML = 'Error loading chart data';
+        });
+});
+</script>
+{% endif %}
+{% endblock %}

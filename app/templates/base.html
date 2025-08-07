@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ELO Darts Rating System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+    <nav>
+        <div>
+            <a href="{{ url_for('main.home') }}"><strong>ELO Ratings</strong></a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.record') }}" class="record-link">Record Match</a>
+            {% endif %}
+            <a href="{{ url_for('main.matches') }}">Match History</a>
+            <a href="{{ url_for('main.stats') }}">Player Statistics</a>
+            {% if current_user.is_authenticated %}
+                <!-- User Dropdown -->
+                <div class="user-dropdown">
+                    <span class="username-toggle">Welcome, {{ current_user.username }} ▼</span>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('main.change_password') }}" class="profile-link">Change Password</a>
+                        {% if current_user.admin %}
+                        <a href="{{ url_for('main.admin') }}" class="admin-link">Admin</a>
+                        {% endif %}
+                        <a href="{{ url_for('main.logout') }}">Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('main.login') }}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    </div>
+
+    <style>
+    .user-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .username-toggle {
+        cursor: pointer;
+        padding: 0.5em 1em;
+        background: lightslategray;
+        border-radius: 4px;
+        user-select: none;
+    }
+
+    .username-toggle:hover {
+        background: #e0e0e0;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: white;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        border-radius: 4px;
+        z-index: 1;
+        border: 1px solid #ddd;
+    }
+
+    .dropdown-content a {
+        color: #333;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-content a:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .user-dropdown:hover .dropdown-content {
+        display: block;
+    }
+    </style>
+
+    <script>
+    // Optional: Click to toggle dropdown instead of hover
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.querySelector('.username-toggle');
+        const dropdown = document.querySelector('.dropdown-content');
+        
+        if (toggle && dropdown) {
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+            
+            // Prevent dropdown from closing when clicking inside it
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+    </script>
+</body>
+</html>

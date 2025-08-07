@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Register</h1>
+    <form method="POST" class="lined-form">
+        <table class="form-table">
+            <tr>
+                <td><label for="username">Username:</label></td>
+                <td class="input-cell">
+                    <div class="input-container">
+                        <input type="text" id="username" name="username" required>
+                        <div class="line"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="email">Email:</label></td>
+                <td class="input-cell">
+                    <div class="input-container">
+                        <input type="email" id="email" name="email" required>
+                        <div class="line"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="password">Password:</label></td>
+                <td class="input-cell">
+                    <div class="input-container">
+                        <input type="password" id="password" name="password" required>
+                        <div class="line"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="input-cell">
+                    <button type="submit" class="auth-button">Register</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+{% endblock %}

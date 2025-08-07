@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Record Match</h1>
+
+    <div class="match-form">
+        <form method="POST" action="{{ url_for('main.record_match') }}" class="detailed-match-form">
+            <table class="form-table">
+                <tr>
+                    <td class="player-column"><h3>Winner</h3></td>
+                    <td class="player-column"><h3>Loser</h3></td>
+                </tr>
+                <tr>
+                    <td class="player-column">
+                        <select name="winner" required class="player-select">
+                            <option value="">Select Winner</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }} ({{ user.elo }})</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="player-column">
+                        <select name="loser" required class="player-select">
+                            <option value="">Select Loser</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }} ({{ user.elo }})</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="player-column">
+                        <div class="stat-group">
+                            <label>180's Hit:</label>
+                            <input type="number" name="winner_180s" min="0" max="3" value="0" class="stat-input">
+                        </div>
+                    </td>
+                    <td class="player-column">
+                        <div class="stat-group">
+                            <label>180's Hit:</label>
+                            <input type="number" name="loser_180s" min="0" max="3" value="0" class="stat-input">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="finish-section">
+                            <h3>Finish Details</h3>
+                            <div class="stat-group finish-stat">
+                                <label>Winning Checkout Score:</label>
+                                <input type="number" name="winning_finish" min="0" max="170" value="0" class="stat-input">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <button type="submit" class="submit-button">Record Match</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<style>
+.detailed-match-form {
+    max-width: 800px;
+    margin: 2em auto;
+    background: white;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.form-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 1em;
+    margin: 0;
+    background: transparent;
+    box-shadow: none;
+    table-layout: fixed;
+}
+
+.form-table td {
+    padding: 0.5em;
+    border: none;
+    vertical-align: top;
+}
+
+.player-column {
+    width: 50%;
+}
+
+.form-table h3 {
+    margin: 0 0 0.5em 0;
+    color: #222e50;
+    text-align: center;
+}
+
+.player-select {
+    width: 100%;
+    padding: 0.75em;
+    border: 1px solid #dbe2ef;
+    border-radius: 4px;
+    font-size: 1em;
+    background: #f7f9fb;
+    box-sizing: border-box;
+}
+
+.stat-group {
+    margin: 1em 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1em;
+    min-height: 40px;
+}
+
+.stat-group label {
+    width: 80px;
+    color: #222e50;
+    text-align: left;
+    flex-shrink: 0;
+}
+
+.stat-input {
+    width: 80px;
+    padding: 0.5em;
+    border: 1px solid #dbe2ef;
+    border-radius: 4px;
+    font-size: 1em;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.finish-section {
+    background: #f7f9fb;
+    padding: 1em;
+    border-radius: 4px;
+    margin: 1em 0;
+    text-align: center;
+}
+
+.finish-section h3 {
+    margin-bottom: 1em;
+}
+
+.finish-stat {
+    justify-content: center;
+    align-items: center;
+}
+
+.finish-stat label {
+    width: auto;
+    margin-right: 1em;
+    text-align: right;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 1em;
+    background: #222e50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.submit-button:hover {
+    background: #2d3b63;
+    transform: translateY(-1px);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+</style>
+{% endblock %}

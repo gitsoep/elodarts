@@ -1,0 +1,19 @@
+services:
+  elodarts-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: elodarts-app:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/app/instance
+    env_file: .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+

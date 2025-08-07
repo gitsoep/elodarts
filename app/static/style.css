@@ -1,0 +1,249 @@
+body {
+    background: #f7f9fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #222e50;
+}
+
+nav {
+    background: #222e50;
+    color: #fff;
+    padding: 1em 2em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(34,46,80,0.08);
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 1.5em;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+nav a:last-child {
+    margin-right: 0;
+}
+
+nav a:hover {
+    color: #ffb400;
+}
+
+nav span {
+    margin-right: 1.5em;
+    font-style: italic;
+}
+
+.flash {
+    background: #ffefc1;
+    color: #7a5c00;
+    border: 1px solid #ffe08a;
+    padding: 0.75em 1.5em;
+    margin: 1em auto;
+    border-radius: 6px;
+    max-width: 600px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    font-size: 1.1em;
+}
+
+.container {
+    max-width: 900px;
+    margin: 1em auto;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(34,46,80,0.08);
+    padding: 1em;
+}
+
+h1, h2, h3 {
+    color: #222e50;
+    margin-top: 0;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    max-width: 400px;
+    margin: 2em auto;
+    background: #f7f9fb;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(34,46,80,0.05);
+}
+
+input, select, textarea, button {
+    padding: 0.75em;
+    border-radius: 5px;
+    border: 1px solid #dbe2ef;
+    font-size: 1em;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #222e50;
+}
+
+button {
+    background: #222e50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #ffb400;
+    color: #222e50;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2em 0;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(34,46,80,0.05);
+}
+
+th, td {
+    padding: 1em;
+    text-align: left;
+    border-bottom: 1px solid #dbe2ef;
+}
+
+th {
+    background: #222e50;
+    color: #fff;
+    font-weight: 600;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* Auth Container Styles */
+.auth-container {
+    max-width: 400px;
+    margin: 2em auto;
+    padding: 2em;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.auth-container h1 {
+    text-align: center;
+    color: #222e50;
+    margin-bottom: 1.5em;
+    font-size: 2em;
+}
+
+/* Lined Form Styles */
+.lined-form {
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+.form-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 1em;
+    background: transparent;
+    box-shadow: none;
+}
+
+.form-table td {
+    border: none;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.form-table td:first-child {
+    width: 100px;
+    text-align: right;
+    padding-right: 1em;
+    white-space: nowrap;
+}
+
+.form-table label {
+    font-size: 1em;
+    color: #222e50;
+    font-weight: 500;
+}
+
+.input-cell {
+    width: auto;
+}
+
+.input-container {
+    position: relative;
+    margin: 0;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 8px 0;
+    font-size: 1em;
+    color: #222e50;
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+.input-container .line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #ddd;
+}
+
+.input-container .line::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #222e50;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s;
+}
+
+.input-container input:focus ~ .line::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Auth Button Styles */
+.auth-button {
+    padding: 12px 24px;
+    background: #222e50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    width: auto;
+    margin: 0;
+}
+
+.auth-button:hover {
+    background: #2d3b63;
+    transform: translateY(-1px);
+}
+
+.auth-button:active {
+    transform: translateY(0);
+}

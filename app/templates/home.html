@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>ELO Darts Ratings</h1>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>180s</th>
+            <th>Highest Finish</th>
+            <th>ELO</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.one_eighties or 0 }}</td>
+            <td>{{ user.highest_finish or '-' }}</td>
+            <td>{{ user.elo }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Last 10 Matches</h2>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Winner</th>
+            <th>Loser</th>
+            <th>Winner ELO Gain</th>
+            <th>Loser ELO Loss</th>
+            <th>Recorded By</th>
+        </tr>
+        {% for match in matches %}
+        <tr>
+            <td>{{ match.date_played.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ match.winner.username }}</td>
+            <td>{{ match.loser.username }}</td>
+            <td>{{ match.winner_elo_gain }}</td>
+            <td>{{ match.loser_elo_loss }}</td>
+            <td>{{ match.recorder.username if match.recorder else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

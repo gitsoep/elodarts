@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>User Management</h1>
+    
+    <div class="admin-filters">
+        <button class="filter-btn" data-filter="all" onclick="filterUsers('all')">All Users</button>
+        <button class="filter-btn" data-filter="enabled" onclick="filterUsers('enabled')">Active Users</button>
+        <button class="filter-btn" data-filter="disabled" onclick="filterUsers('disabled')">Pending Users</button>
+        <button class="filter-btn" data-filter="admin" onclick="filterUsers('admin')">Admins</button>
+    </div>
+
+    <table class="admin-table">
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>ELO</th>
+            <th>Last Played</th>
+            <th>Actions</th>
+        </tr>
+        {% for user in users %}
+        <tr class="user-row {% if not user.enabled %}disabled{% endif %} {% if user.admin %}admin{% endif %}">
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+                <span class="status-badge {% if user.enabled %}enabled{% else %}disabled{% endif %}">
+                    {{ "Active" if user.enabled else "Pending" }}
+                </span>
+            </td>
+            <td>
+                <form method="POST" action="{{ url_for('main.admin_set_elo', user_id=user.id) }}" class="inline-form elo-form">
+                    <input type="number" name="elo" value="{{ user.elo }}" class="elo-input">
+                    <button type="submit" class="action-btn update-elo" title="Update ELO">✓</button>
+                </form>
+            </td>
+            <td>{{ user.last_played.strftime('%Y-%m-%d') if user.last_played else "Never" }}</td>
+            <td class="actions">
+                {% if not user.enabled %}
+                <form method="POST" action="{{ url_for('main.admin_enable_user', user_id=user.id) }}" class="inline-form">
+                    <button type="submit" class="action-btn enable">Enable</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('main.admin_disable_user', user_id=user.id) }}" class="inline-form">
+                    <button type="submit" class="action-btn disable">Disable</button>
+                </form>
+                {% endif %}
+
+                {% if not user.admin %}
+                <form method="POST" action="{{ url_for('main.admin_make_admin', user_id=user.id) }}" class="inline-form">
+                    <button type="submit" class="action-btn make-admin">Make Admin</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('main.admin_remove_admin', user_id=user.id) }}" class="inline-form">
+                    <button type="submit" class="action-btn remove-admin">Remove Admin</button>
+                </form>
+                {% endif %}
+
+                {% if current_user.id == 1 %}
+                <!-- Remove User Button -->
+                <form method="POST" action="{{ url_for('main.admin_remove_user', user_id=user.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to remove this user?');">
+                    <button type="submit" class="action-btn reset" title="Remove User">Remove</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<style>
+.admin-filters {
+    margin: 1em 0 2em;
+    display: flex;
+    gap: 1em;
+}
+
+.filter-btn {
+    padding: 0.5em 1em;
+    border: 1px solid #dbe2ef;
+    background: lightslategray;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: #222e50;
+    color: white;
+    border-color: #222e50;
+}
+
+.admin-table {
+    width: 100%;
+    margin-top: 1em;
+}
+
+.elo-form {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.elo-input {
+    width: 70px;
+    padding: 0.3em;
+    border: 1px solid #dbe2ef;
+    border-radius: 4px 0 0 4px;
+    margin: 0;
+}
+
+.update-elo {
+    padding: 0.3em 0.6em !important;
+    font-size: 0.9em;
+    margin-left: -1px;
+    border-radius: 0 4px 4px 0;
+    background: #e0f4e0;
+    color: #2d5a2d;
+}
+
+.user-row.disabled {
+    background: #f8f8f8;
+}
+
+.user-row.admin {
+    background: #fff8e8;
+}
+
+.status-badge,
+.admin-badge {
+    padding: 0.2em 0.6em;
+    border-radius: 12px;
+    font-size: 0.9em;
+}
+
+.status-badge.enabled {
+    background: #e0f4e0;
+    color: #2d5a2d;
+}
+
+.status-badge.disabled {
+    background: #f4e0e0;
+    color: #5a2d2d;
+}
+
+.admin-badge.enabled {
+    background: #f4f0e0;
+    color: #5a552d;
+}
+
+.actions {
+    display: flex;
+    gap: 0.3em;
+    align-items: center;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.action-btn {
+    padding: 0.2em 0.4em;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: #f0f0f0;
+    color: #666;
+}
+
+.action-btn.enable {
+    background: #e0f4e0;
+    color: #2d5a2d;
+}
+
+.action-btn.disable {
+    background: #f4e0e0;
+    color: #5a2d2d;
+}
+
+.action-btn.make-admin,
+.action-btn.remove-admin {
+    background: #f4f0e0;
+    color: #5a552d;
+}
+
+.action-btn.reset {
+    background: #e0e0f4;
+    color: #2d2d5a;
+}
+
+.action-btn:hover {
+    filter: brightness(0.9);
+}
+</style>
+
+<script>
+function filterUsers(type) {
+    const rows = document.querySelectorAll('.user-row');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === type) {
+            btn.classList.add('active');
+        }
+    });
+    
+    rows.forEach(row => {
+        switch(type) {
+            case 'all':
+                row.style.display = '';
+                break;
+            case 'enabled':
+                row.style.display = row.classList.contains('disabled') ? 'none' : '';
+                break;
+            case 'disabled':
+                row.style.display = row.classList.contains('disabled') ? '' : 'none';
+                break;
+            case 'admin':
+                row.style.display = row.classList.contains('admin') ? '' : 'none';
+                break;
+        }
+    });
+}
+
+// Set initial filter to 'all'
+document.addEventListener('DOMContentLoaded', () => {
+    filterUsers('all');
+});
+</script>
+{% endblock %}
