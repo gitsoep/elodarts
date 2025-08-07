@@ -25,8 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN useradd -m myuser
+# Create elodarts user and group
+RUN groupadd -r elodarts && useradd -r -g elodarts -m elodarts
 
 WORKDIR /app
 
@@ -42,10 +42,10 @@ COPY . .
 
 # Create instance directory and set permissions
 RUN mkdir -p instance && \
-    chown -R myuser:myuser /app
+    chown -R elodarts:elodarts /app
 
 # Switch to non-root user
-USER myuser
+USER elodarts
 
 # Set environment variables
 ENV FLASK_APP=run.py \
