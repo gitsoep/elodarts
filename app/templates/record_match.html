@@ -2,8 +2,7 @@
 
 {% block content %}
 <div class="container">
-    <h1>Record Match</h1>
-
+    <img src="{{ url_for('static', filename='banner-record-match.png') }}" alt="Record Match" class="logo">    
     <div class="match-form">
         <form method="POST" action="{{ url_for('main.record_match') }}" class="detailed-match-form">
             <table class="form-table">

@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="container">
-    <h1>Player Statistics</h1>
-    
+    <img src="{{ url_for('static', filename='banner-player-stats.png') }}" alt="Player Statistics" class="logo">    
+
     <div class="player-select">
         <form method="GET" action="{{ url_for('main.stats') }}">
             <label for="player">Select Player:</label>
