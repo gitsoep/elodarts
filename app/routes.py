@@ -328,6 +328,17 @@ def admin_delete_match(match_id):
     loser.matches_played -= 1
     loser.matches_lost -= 1
     loser.one_eighties -= match.loser_180s
+    # Deduct high finishes for loser if they had 100+ checkout(s) (only tracked via loser_finishes list)
+    if match.loser_finishes:
+        l_finishes = [int(f) for f in match.loser_finishes.split(',') if f.strip().isdigit()]
+        loser_high_to_deduct = sum(1 for f in l_finishes if f >= 100)
+        if loser_high_to_deduct:
+            loser.high_finishes = max(0, loser.high_finishes - loser_high_to_deduct)
+
+    # Clamp any negative stats to zero for safety
+    winner.high_finishes = max(0, winner.high_finishes)
+    winner.one_eighties = max(0, winner.one_eighties)
+    loser.one_eighties = max(0, loser.one_eighties)
     
     # Check if this was the highest finish for the winner
     if match.winning_finish == winner.highest_finish:
@@ -344,6 +355,26 @@ def admin_delete_match(match_id):
                     highest = max(highest, max(fin_list))
             highest = max(highest, m.winning_finish or 0)
         winner.highest_finish = highest
+    # Check if loser highest finish came from this match (only from loser_finishes)
+    if match.loser_finishes:
+        l_fin_list = [int(f) for f in match.loser_finishes.split(',') if f.strip().isdigit()]
+        if l_fin_list and max(l_fin_list) == loser.highest_finish:
+            # Recompute loser's highest finish across all matches
+            new_high = 0
+            # Matches they won
+            for m in Match.query.filter(Match.winner_id == loser.id, Match.id != match_id).all():
+                if m.winner_finishes:
+                    wf = [int(f) for f in m.winner_finishes.split(',') if f.strip().isdigit()]
+                    if wf:
+                        new_high = max(new_high, max(wf))
+                new_high = max(new_high, m.winning_finish or 0)
+            # Matches they lost
+            for m in Match.query.filter(Match.loser_id == loser.id, Match.id != match_id).all():
+                if m.loser_finishes:
+                    lf = [int(f) for f in m.loser_finishes.split(',') if f.strip().isdigit()]
+                    if lf:
+                        new_high = max(new_high, max(lf))
+            loser.highest_finish = new_high
     
     # Delete the match
     db.session.delete(match)
