@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ELO Darts Rating System</title>
+    <title>Cafejojo's Darts Ranking</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
     <nav>
         <div>
-            <a href="{{ url_for('main.home') }}"><strong>ELO Ratings</strong></a>
+            <a href="{{ url_for('main.home') }}"><strong>Ranking</strong></a>
             {% if current_user.is_authenticated %}
             <a href="{{ url_for('main.record') }}" class="record-link">Record Match</a>
             {% endif %}
             <a href="{{ url_for('main.matches') }}">Match History</a>
-            <a href="{{ url_for('main.stats') }}">Player Statistics</a>
+            <a href="{{ url_for('main.stats') }}">Statistics</a>
             {% if current_user.is_authenticated %}
                 <!-- User Dropdown -->
                 <div class="user-dropdown">
-                    <span class="username-toggle">Welcome, {{ current_user.username }} ▼</span>
+                    <span class="username-toggle">{{ current_user.username }} ▼</span>
                     <div class="dropdown-content">
                         <a href="{{ url_for('main.change_password') }}" class="profile-link">Change Password</a>
                         {% if current_user.admin %}
