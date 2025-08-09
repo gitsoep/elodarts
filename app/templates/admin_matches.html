@@ -18,7 +18,7 @@
             <th>Loser ELO Loss</th>
             <th>Winner 180s</th>
             <th>Loser 180s</th>
-            <th>Winning Finish</th>
+            <th>Finishes (W / L)</th>
             <th>Recorded By</th>
             <th>Actions</th>
         </tr>
@@ -31,7 +31,19 @@
             <td class="elo-loss negative">{{ match.loser_elo_loss }}</td>
             <td class="stat-cell">{{ match.winner_180s }}</td>
             <td class="stat-cell">{{ match.loser_180s }}</td>
-            <td class="stat-cell">{{ match.winning_finish if match.winning_finish > 0 else '-' }}</td>
+            <td class="stat-cell">
+                {% if match.winner_finishes %}
+                    {% set wfin = match.winner_finishes.split(',') %}
+                    <strong>{{ wfin|join(', ') }}</strong>
+                {% elif match.winning_finish > 0 %}
+                    <strong>{{ match.winning_finish }}</strong>
+                {% else %}-{% endif %}
+                /
+                {% if match.loser_finishes %}
+                    {% set lfin = match.loser_finishes.split(',') %}
+                    {{ lfin|join(', ') }}
+                {% else %}-{% endif %}
+            </td>
             <td class="recorder">{{ match.recorder.username if match.recorder else 'N/A' }}</td>
             <td class="actions">
                 <form method="POST" action="{{ url_for('main.admin_delete_match', match_id=match.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this match? This will restore ELO points to both players.');">

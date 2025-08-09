@@ -33,23 +33,32 @@
                     <td class="player-column">
                         <div class="stat-group">
                             <label>180's Hit:</label>
-                            <input type="number" name="winner_180s" min="0" max="3" value="0" class="stat-input">
+                            <input type="number" name="winner_180s" min="0" max="10" value="0" class="stat-input">
                         </div>
                     </td>
                     <td class="player-column">
                         <div class="stat-group">
                             <label>180's Hit:</label>
-                            <input type="number" name="loser_180s" min="0" max="3" value="0" class="stat-input">
+                            <input type="number" name="loser_180s" min="0" max="10" value="0" class="stat-input">
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <div class="finish-section">
-                            <h3>Finish Details</h3>
-                            <div class="stat-group finish-stat">
-                                <label>Winning Checkout Score:</label>
-                                <input type="number" name="winning_finish" min="0" max="170" value="0" class="stat-input">
+                            <h3>Checkout Finishes</h3>
+                            <p style="font-size:0.9em;color:#555;margin-top:-0.5em;">Add all leg-winning checkout scores. Highest winner finish stored; 100+ finishes count towards stats.</p>
+                            <div class="finishes-wrapper">
+                                <div class="finishes-column">
+                                    <h4>Winner Finishes</h4>
+                                    <div id="winner-finishes" class="finish-list"></div>
+                                    <button type="button" class="add-finish-btn" onclick="addFinish('winner')">+ Add Finish</button>
+                                </div>
+                                <div class="finishes-column">
+                                    <h4>Loser Finishes</h4>
+                                    <div id="loser-finishes" class="finish-list"></div>
+                                    <button type="button" class="add-finish-btn" onclick="addFinish('loser')">+ Add Finish</button>
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -159,6 +168,18 @@
     text-align: right;
 }
 
+/* Multi-finish additions */
+.finishes-wrapper { display:flex; gap:2em; justify-content:center; flex-wrap:wrap; }
+.finishes-column { flex:1 1 300px; background:#fff; padding:1em; border:1px solid #dbe2ef; border-radius:6px; }
+.finishes-column h4 { margin:0 0 .5em 0; color:#222e50; }
+.finish-list { display:flex; flex-direction:column; gap:.5em; }
+.finish-item { display:flex; align-items:center; gap:.5em; }
+.finish-item input { flex:0 0 90px; }
+.remove-finish-btn { background:#b02a37; color:#fff; border:none; border-radius:4px; padding:.4em .6em; cursor:pointer; font-size:.75em; }
+.remove-finish-btn:hover { background:#d13f4b; }
+.add-finish-btn { margin-top:.5em; background:#222e50; color:#fff; border:none; padding:.5em 1em; border-radius:4px; cursor:pointer; font-size:.8em; }
+.add-finish-btn:hover { background:#2d3b63; }
+
 .submit-button {
     width: 100%;
     padding: 1em;
@@ -180,4 +201,28 @@
     transform: translateY(0);
 }
 </style>
+<script>
+function addFinish(side){
+    const container = document.getElementById(side+'-finishes');
+    const div = document.createElement('div');
+    div.className = 'finish-item';
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.name = side + '_finish[]';
+    input.min = '0';
+    input.max = '170';
+    input.value = '0';
+    input.className = 'stat-input';
+    input.addEventListener('input', updateFallbackHighest);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'remove-finish-btn';
+    btn.textContent = 'Remove';
+    btn.onclick = () => { div.remove(); updateFallbackHighest(); };
+    div.appendChild(input); div.appendChild(btn); container.appendChild(div);
+    updateFallbackHighest();
+}
+function updateFallbackHighest(){ /* no-op now; server computes highest finish */ }
+window.addEventListener('DOMContentLoaded', ()=>{ addFinish('winner'); addFinish('loser'); });
+</script>
 {% endblock %}

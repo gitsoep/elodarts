@@ -41,6 +41,9 @@ class Match(db.Model):
     winner_180s = db.Column(db.Integer, default=0)
     loser_180s = db.Column(db.Integer, default=0)
     winning_finish = db.Column(db.Integer, default=0)  # The checkout score
+    # Comma-separated list of all leg finishing checkout scores for each player (optional new feature)
+    winner_finishes = db.Column(db.String, default="")
+    loser_finishes = db.Column(db.String, default="")
 
     winner = db.relationship('User', foreign_keys=[winner_id], backref='matches_won_list')
     loser = db.relationship('User', foreign_keys=[loser_id], backref='matches_lost_list')

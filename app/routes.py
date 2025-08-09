@@ -124,21 +124,31 @@ def record_match():
         # Get statistics from the form
         winner_180s = int(request.form.get('winner_180s', 0))
         loser_180s = int(request.form.get('loser_180s', 0))
-        winning_finish = int(request.form.get('winning_finish', 0))
-        
+        # Multiple finishes: fields named winner_finish[] and loser_finish[]
+        winner_finishes_list = [int(v) for v in request.form.getlist('winner_finish[]') if v and v.isdigit()]
+        loser_finishes_list = [int(v) for v in request.form.getlist('loser_finish[]') if v and v.isdigit()]
+        winning_finish = max(winner_finishes_list) if winner_finishes_list else 0
+        losing_finish = max(loser_finishes_list) if loser_finishes_list else 0
+
         # Update user statistics
         winner.matches_played += 1
         winner.matches_won += 1
         winner.one_eighties += winner_180s
-        if winning_finish >= 100:
-            winner.high_finishes += 1
+        # Update high finishes (count how many 100+ finishes this match added)
+        winner_high_finish_count = sum(1 for f in winner_finishes_list if f >= 100)
+        winner.high_finishes += winner_high_finish_count
         if winning_finish > winner.highest_finish:
             winner.highest_finish = winning_finish
 
         loser.matches_played += 1
         loser.matches_lost += 1
         loser.one_eighties += loser_180s
-        
+        # Update high finishes (count how many 100+ finishes this match added)
+        loser_high_finish_count = sum(1 for f in loser_finishes_list if f >= 100)
+        loser.high_finishes += loser_high_finish_count
+        if losing_finish > loser.highest_finish:
+            loser.highest_finish = losing_finish
+
         match = Match(
             winner_id=winner.id,
             loser_id=loser.id,
@@ -148,7 +158,9 @@ def record_match():
             recorded_by=current_user.id,
             winner_180s=winner_180s,
             loser_180s=loser_180s,
-            winning_finish=winning_finish
+            winning_finish=winning_finish,
+            winner_finishes=','.join(str(f) for f in winner_finishes_list),
+            loser_finishes=','.join(str(f) for f in loser_finishes_list)
         )
         db.session.add(match)
         db.session.commit()
@@ -305,8 +317,13 @@ def admin_delete_match(match_id):
     winner.matches_played -= 1
     winner.matches_won -= 1
     winner.one_eighties -= match.winner_180s
-    if match.winning_finish >= 100:
-        winner.high_finishes -= 1
+    # Deduct high finishes contributed by this match (recalculate from stored finishes if available)
+    if match.winner_finishes:
+        finishes = [int(f) for f in match.winner_finishes.split(',') if f.strip().isdigit()]
+        winner.high_finishes -= sum(1 for f in finishes if f >= 100)
+    else:
+        if match.winning_finish >= 100:
+            winner.high_finishes -= 1
     
     loser.matches_played -= 1
     loser.matches_lost -= 1
@@ -314,12 +331,19 @@ def admin_delete_match(match_id):
     
     # Check if this was the highest finish for the winner
     if match.winning_finish == winner.highest_finish:
-        # Find the new highest finish from remaining matches
+        # Find the new highest finish from remaining matches considering multi-finish lists
         remaining_matches = Match.query.filter(
             Match.winner_id == winner.id,
             Match.id != match_id
-        ).order_by(Match.winning_finish.desc()).first()
-        winner.highest_finish = remaining_matches.winning_finish if remaining_matches else 0
+        ).all()
+        highest = 0
+        for m in remaining_matches:
+            if m.winner_finishes:
+                fin_list = [int(f) for f in m.winner_finishes.split(',') if f.strip().isdigit()]
+                if fin_list:
+                    highest = max(highest, max(fin_list))
+            highest = max(highest, m.winning_finish or 0)
+        winner.highest_finish = highest
     
     # Delete the match
     db.session.delete(match)
@@ -357,13 +381,26 @@ def stats():
     if player_id:
         selected_player = User.query.get(player_id)
         if selected_player:
-            # Get high finishes (100+)
-            high_finishes = Match.query.filter(
+            # High finishes (100+) now include those when player lost but achieved a 100+ checkout
+            wins_with_high = Match.query.filter(
                 Match.winner_id == player_id,
                 Match.winning_finish >= 100
-            ).order_by(Match.date_played.desc()).limit(10).all()
-            
-            # Get matches with 180s
+            ).all()
+
+            losses_with_finishes = Match.query.filter(
+                Match.loser_id == player_id,
+                Match.loser_finishes != ''
+            ).all()
+            # Filter losses to only those with at least one 100+ finish in loser_finishes
+            filtered_losses = []
+            for m in losses_with_finishes:
+                if any((f.strip().isdigit() and int(f) >= 100) for f in m.loser_finishes.split(',')):
+                    filtered_losses.append(m)
+            combined = wins_with_high + filtered_losses
+            combined.sort(key=lambda m: m.date_played, reverse=True)
+            high_finishes = combined[:10]
+
+            # Matches with 180s unchanged
             recent_180s = Match.query.filter(
                 ((Match.winner_id == player_id) & (Match.winner_180s > 0)) |
                 ((Match.loser_id == player_id) & (Match.loser_180s > 0))

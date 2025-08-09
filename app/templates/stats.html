@@ -48,17 +48,39 @@
         <table>
             <tr>
                 <th>Date</th>
-                <th>Finish</th>
-                <th>Against</th>
+                <th>Your Finishes</th>
+                <th>Opponent</th>
+                <th>Match result</th>
             </tr>
             {% for match in high_finishes %}
-            <tr>
-                <td>{{ match.date_played.strftime('%Y-%m-%d') }}</td>
-                <td>{{ match.winning_finish }}</td>
-                <td>{{ match.loser.username }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+                <tr>
+                    <td>{{ match.date_played.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if match.winner_id == selected_player.id %}
+                            {% if match.winner_finishes %}
+                                {% set wfin = match.winner_finishes.split(',')|map('int')|list %}
+                                {% set whigh = wfin|max %}
+                                {% for f in wfin %}
+                                    <span{% if f==whigh %} style="font-weight:bold;" title="Highest finish"{% endif %}>{{ f }}</span>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {{ match.winning_finish }}
+                            {% endif %}
+                        {% else %}
+                            {% if match.loser_finishes %}
+                                {% set lfin = match.loser_finishes.split(',')|map('int')|list %}
+                                {% set lhigh = lfin|max %}
+                                {% for f in lfin %}
+                                    <span{% if f==lhigh %} style="font-weight:bold;" title="Highest finish (loss)"{% endif %}>{{ f }}</span>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}-{% endif %}
+                        {% endif %}
+                    </td>
+                    <td>{{ match.loser.username if match.winner_id == selected_player.id else match.winner.username }}</td>
+                    <td>{% if match.winner_id == selected_player.id %}Win{% else %}Loss{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
 
         <h3>Recent 180s</h3>
         <table>
