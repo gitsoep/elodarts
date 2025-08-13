@@ -409,6 +409,11 @@ def stats():
     high_finishes = []
     recent_180s = []
     
+    # If no player parameter is provided at all (first visit) and user is logged in, show their stats by default
+    # But if player parameter is provided as empty string (All Players selected), don't default to current user
+    if 'player' not in request.args and current_user.is_authenticated:
+        player_id = current_user.id
+    
     if player_id:
         selected_player = User.query.get(player_id)
         if selected_player:

@@ -9,17 +9,29 @@
             <label for="player">Select Player:</label>
             <select name="player" id="player" onchange="this.form.submit()">
                 <option value="">All Players</option>
+                {% if current_user.is_authenticated %}
+                    <option value="{{ current_user.id }}" {% if selected_player and selected_player.id == current_user.id %}selected{% endif %}>
+                        {{ current_user.username }} (You)
+                    </option>
+                {% endif %}
                 {% for user in users %}
-                <option value="{{ user.id }}" {% if selected_player and selected_player.id == user.id %}selected{% endif %}>
-                    {{ user.username }}
-                </option>
+                    {% if not current_user.is_authenticated or user.id != current_user.id %}
+                    <option value="{{ user.id }}" {% if selected_player and selected_player.id == user.id %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </form>
     </div>
 
     {% if selected_player %}
-        <h2>{{ selected_player.username }}'s Statistics</h2>
+        <h2>
+            {{ selected_player.username }}'s Statistics
+            {% if current_user.is_authenticated and selected_player.id == current_user.id %}
+                <span class="your-stats-badge">Your Stats</span>
+            {% endif %}
+        </h2>
         
         <!-- ELO Rating Graph - Move to top for better visibility -->
         <div class="chart-container">
@@ -147,6 +159,17 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     margin-left: 0.5em;
+}
+
+.your-stats-badge {
+    background: #667eea;
+    color: white;
+    padding: 0.3em 0.8em;
+    border-radius: 15px;
+    font-size: 0.7em;
+    font-weight: normal;
+    margin-left: 0.5em;
+    vertical-align: middle;
 }
 
 .chart-container {
