@@ -28,31 +28,39 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
     
-    # Initialize database and create admin user if needed
-    with app.app_context():
-        init_database()
+    # Initialize database only if it doesn't exist
+    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+    if db_uri.startswith('sqlite:///'):
+        # Extract database file path
+        db_path = db_uri.replace('sqlite:///', '')
+        if not os.path.isabs(db_path):
+            db_path = os.path.join(app.instance_path, db_path)
+        
+        # Only initialize if database file doesn't exist
+        if not os.path.exists(db_path):
+            # Ensure instance directory exists
+            os.makedirs(app.instance_path, exist_ok=True)
+            with app.app_context():
+                init_database()
     
     return app
 
 def init_database():
-    """Initialize database tables and create default admin user if needed."""
+    """Initialize database tables and create default admin user."""
     from .models import User
     
     # Create all tables
     db.create_all()
     
-    # Check if admin user exists
-    admin_user = User.query.filter_by(username='admin').first()
-    if not admin_user:
-        # Create admin user
-        admin_user = User(
-            username='admin',
-            email='admin@example.com',
-            admin=True,
-            enabled=True,
-            elo=1000
-        )
-        admin_user.set_password('admin')
-        db.session.add(admin_user)
-        db.session.commit()
-        print("Created default admin user (username: admin, password: admin)")
+    # Create admin user
+    admin_user = User(
+        username='admin',
+        email='admin@example.com',
+        admin=True,
+        enabled=True,
+        elo=1000
+    )
+    admin_user.set_password('admin')
+    db.session.add(admin_user)
+    db.session.commit()
+    print("Created new database with default admin user (username: admin, password: admin)")
