@@ -40,4 +40,5 @@ instance/
 .docker/
 
 # Logs
+logs/
 *.log

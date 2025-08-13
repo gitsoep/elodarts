@@ -8,9 +8,27 @@ from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
 import secrets
 import string
+import logging
+import os
 from sqlalchemy import or_
 
 main = Blueprint('main', __name__)
+
+def get_real_ip():
+    """Get the real IP address from X-Real-IP header or fallback to remote_addr"""
+    real_ip = request.headers.get('X-Real-IP')
+    if real_ip:
+        return real_ip
+    return request.remote_addr or 'unknown'
+
+def log_user_action(action, user=None, extra_info=None):
+    """Log user actions with IP address"""
+    ip = get_real_ip()
+    user_info = f"user:{user.username}" if user else "anonymous"
+    log_message = f"[{ip}] {action} - {user_info}"
+    if extra_info:
+        log_message += f" - {extra_info}"
+    current_app.logger.info(log_message)
 
 @main.route('/')
 def home():
@@ -62,17 +80,21 @@ def login():
         ).first()
         if user and user.check_password(password):
             if not user.enabled:
+                log_user_action('LOGIN_FAILED', user, 'account not enabled')
                 flash('Your account is not enabled. Please wait for approval.')
                 return redirect(url_for('main.login'))
             login_user(user)
+            log_user_action('LOGIN_SUCCESS', user)
             return redirect(url_for('main.home'))
         else:
+            log_user_action('LOGIN_FAILED', None, f'invalid credentials for: {identifier}')
             flash('Invalid username/email or password.')
     return render_template('login.html')
 
 @main.route('/logout')
 @login_required
 def logout():
+    log_user_action('LOGOUT', current_user)
     logout_user()
     return redirect(url_for('main.home'))
 
@@ -164,6 +186,9 @@ def record_match():
         )
         db.session.add(match)
         db.session.commit()
+        
+        log_user_action('MATCH_RECORDED', current_user, 
+                       f'{winner.username} beat {loser.username}, ELO: {winner.elo}(+{winner_elo_gain}) vs {loser.elo}({loser_elo_loss})')
     
     return redirect(url_for('main.home'))
 
@@ -377,6 +402,8 @@ def admin_delete_match(match_id):
             loser.highest_finish = new_high
     
     # Delete the match
+    log_user_action('MATCH_DELETED', current_user, 
+                   f'Deleted match: {winner.username} vs {loser.username}, ELO restored: {winner.username}(-{match.winner_elo_gain}), {loser.username}(+{abs(match.loser_elo_loss)})')
     db.session.delete(match)
     db.session.commit()
     
@@ -686,4 +713,27 @@ def elo_history(user_id):
         'dates': dates,
         'elo_values': elo_values
     })
+
+@main.route('/admin/logs')
+@login_required
+def admin_logs():
+    if not current_user.admin:
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('main.home'))
+    
+    try:
+        log_lines = []
+        if os.path.exists('logs/elodarts.log'):
+            with open('logs/elodarts.log', 'r') as f:
+                log_lines = f.readlines()
+        
+        # Get the last 200 lines and reverse to show newest first
+        recent_logs = log_lines[-200:] if len(log_lines) > 200 else log_lines
+        recent_logs.reverse()
+        
+        return render_template('admin_logs.html', logs=recent_logs)
+    except Exception as e:
+        flash(f'Error reading logs: {str(e)}')
+        return redirect(url_for('main.admin'))
+
 

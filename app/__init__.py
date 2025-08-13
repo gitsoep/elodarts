@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,6 +22,23 @@ def create_app():
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'email-username')
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
     mail.init_app(app)
+    
+    # Configure logging
+    if not app.debug:
+        # Ensure logs directory exists
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        
+        # Set up rotating file handler
+        file_handler = RotatingFileHandler('logs/elodarts.log', maxBytes=10240000, backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('ELO Darts application startup')
     
     db.init_app(app)
     login_manager.init_app(app)

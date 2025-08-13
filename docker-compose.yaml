@@ -7,6 +7,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
+      # - ./logs/elodarts.log:/app/logs/elodarts.log
       - ./instance:/app/instance
     env_file: .env
     healthcheck:

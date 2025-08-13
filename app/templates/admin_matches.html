@@ -5,8 +5,9 @@
     <h1>Match Management</h1>
     <p class="description">View and manage recorded matches. Deleting a match will restore ELO points to both players.</p>
     
-    <div class="admin-actions">
-        <a href="{{ url_for('main.admin') }}" class="back-button">← Back to User Management</a>
+    <div class="admin-nav">
+        <a href="{{ url_for('main.admin') }}" class="nav-button">👤 User Management</a>
+        <a href="{{ url_for('main.admin_logs') }}" class="nav-button">📋 View Logs</a>
     </div>
 
     <table class="admin-table">
@@ -83,6 +84,24 @@
     border-left: 4px solid #ffb400;
 }
 
+.admin-nav {
+    margin: 1em 0 2em;
+    display: flex;
+    gap: 1em;
+    justify-content: flex-start;
+}
+
+.nav-button {
+    display: inline-block;
+    padding: 0.75em 1.5em;
+    background: #222e50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 1px solid #222e50;
+}
 .admin-actions {
     margin: 1em 0 2em;
     display: flex;
