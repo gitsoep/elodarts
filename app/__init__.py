@@ -28,4 +28,31 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
     
+    # Initialize database and create admin user if needed
+    with app.app_context():
+        init_database()
+    
     return app
+
+def init_database():
+    """Initialize database tables and create default admin user if needed."""
+    from .models import User
+    
+    # Create all tables
+    db.create_all()
+    
+    # Check if admin user exists
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
+        # Create admin user
+        admin_user = User(
+            username='admin',
+            email='admin@example.com',
+            admin=True,
+            enabled=True,
+            elo=1000
+        )
+        admin_user.set_password('admin')
+        db.session.add(admin_user)
+        db.session.commit()
+        print("Created default admin user (username: admin, password: admin)")
