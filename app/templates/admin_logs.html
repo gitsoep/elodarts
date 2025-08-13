@@ -3,8 +3,13 @@
 {% block content %}
 <div class="container">
     <h1>Application Logs</h1>
-    <p>Showing the last 200 log entries (most recent first)</p>
-    
+    <p class="description">Showing the last 200 log entries (most recent first)</p>
+
+    <div class="admin-nav">
+        <a href="{{ url_for('main.admin_matches') }}" class="nav-button">📊 Match Management</a>
+        <a href="{{ url_for('main.admin') }}" class="nav-button">👤 User Management</a>
+    </div>
+
     <div class="logs-container">
         {% if logs %}
             {% for log_line in logs %}
@@ -17,12 +22,39 @@
         {% endif %}
     </div>
     
-    <div class="admin-actions">
-        <a href="{{ url_for('main.admin_matches') }}" class="button">Back to Management</a>
-    </div>
 </div>
 
 <style>
+.description {
+    text-align: left;
+    color: #666;
+    margin-bottom: 2em;
+    font-size: 0.95em;
+    background: #f9f9f9;
+    padding: 1em;
+    border-radius: 4px;
+    border-left: 4px solid #ffb400;
+}
+
+.admin-nav {
+    margin: 1em 0 2em;
+    display: flex;
+    gap: 1em;
+    justify-content: flex-start;
+}
+
+.nav-button {
+    display: inline-block;
+    padding: 0.75em 1.5em;
+    background: #222e50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 1px solid #222e50;
+}
+
 .logs-container {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
