@@ -15,8 +15,8 @@ from sqlalchemy import or_
 main = Blueprint('main', __name__)
 
 def get_real_ip():
-    """Get the real IP address from X-Real-IP header or fallback to remote_addr"""
-    real_ip = request.headers.get('X-Real-IP')
+    """Get the real IP address from X-Forwarded-For header or fallback to remote_addr"""
+    real_ip = request.headers.get('X-Forwarded-For', '').split(",")[0]
     if real_ip:
         return real_ip
     return request.remote_addr or 'unknown'

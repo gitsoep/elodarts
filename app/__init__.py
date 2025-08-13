@@ -32,7 +32,7 @@ def create_app():
         # Set up rotating file handler
         file_handler = RotatingFileHandler('logs/elodarts.log', maxBytes=10240000, backupCount=10)
         file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            '%(asctime)s %(levelname)s: %(message)s'
         ))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
