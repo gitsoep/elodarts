@@ -519,6 +519,45 @@ def change_password():
     
     return render_template('change_password.html')
 
+@main.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        new_username = request.form['username'].strip()
+        new_email = request.form['email'].strip().lower()
+        
+        # Validate username
+        if not new_username:
+            flash('Username cannot be empty.', 'error')
+            return render_template('edit_profile.html')
+        
+        # Check if username is taken by another user
+        existing_user = User.query.filter_by(username=new_username).first()
+        if existing_user and existing_user.id != current_user.id:
+            flash('Username already exists.', 'error')
+            return render_template('edit_profile.html')
+        
+        # Validate email
+        if not new_email:
+            flash('Email cannot be empty.', 'error')
+            return render_template('edit_profile.html')
+        
+        # Check if email is taken by another user
+        existing_user = User.query.filter_by(email=new_email).first()
+        if existing_user and existing_user.id != current_user.id:
+            flash('Email already exists.', 'error')
+            return render_template('edit_profile.html')
+        
+        # Update user information
+        current_user.username = new_username
+        current_user.email = new_email
+        db.session.commit()
+        
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('main.home'))
+    
+    return render_template('edit_profile.html')
+
 @main.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':

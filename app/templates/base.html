@@ -19,6 +19,7 @@
                 <div class="user-dropdown">
                     <span class="username-toggle">{{ current_user.username }} ▼</span>
                     <div class="dropdown-content">
+                        <a href="{{ url_for('main.edit_profile') }}" class="profile-link">Edit Profile</a>
                         <a href="{{ url_for('main.change_password') }}" class="profile-link">Change Password</a>
                         {% if current_user.admin %}
                         <a href="{{ url_for('main.admin') }}" class="admin-link">User Management</a>

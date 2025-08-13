@@ -23,6 +23,7 @@ FROM --platform=$TARGETPLATFORM python:3.12-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libpq5 \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Create elodarts user and group
@@ -40,12 +41,16 @@ RUN pip install --no-cache /wheels/*
 # Copy application code
 COPY . .
 
+# Copy and make entrypoint script executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Create instance directory and set permissions
 RUN mkdir -p instance && \
     chown -R elodarts:elodarts /app
 
-# Switch to non-root user
-USER elodarts
+# Don't switch to non-root user yet - entrypoint will handle this
+# USER elodarts
 
 # Set environment variables
 ENV FLASK_APP=run.py \
@@ -60,6 +65,9 @@ EXPOSE 5000
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
+
+# Use entrypoint to handle permissions and user switching
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Run the application with gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--access-logfile", "-", "run:app"]

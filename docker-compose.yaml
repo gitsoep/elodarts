@@ -4,7 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile
     image: elodarts-app:latest
-    user: "elodarts:elodarts"
     ports:
       - "5000:5000"
     volumes:
