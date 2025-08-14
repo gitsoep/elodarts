@@ -3,6 +3,11 @@
 {% block content %}
 <div class="container">
     <img src="{{ url_for('static', filename='banner-home.png') }}" alt="Cafejojo's Darts Ranking Logo" class="logo">    
+    
+    <div class="description">
+        <p>De website darts.cafejojo.nl is het online platform voor de Caféjojo's Darts Ranking. Spelers kunnen zich registreren, meedoen aan wedstrijden en hun voortgang volgen. Het systeem gebruikt een Elo-ranking om prestaties eerlijk te vergelijken, waarbij je punten wint of verliest op basis van je tegenstander en het wedstrijdresultaat. De site biedt een overzicht van ranglijsten, persoonlijke statistieken. Na registratie zal een beheerder de speler goedkeuren.</p>
+    </div>
+    
     <table>
         <tr>
             <th>Rank</th>
@@ -44,4 +49,20 @@
         {% endfor %}
     </table>
 </div>
+
+<style>
+.description {
+    background: #f7f9fb;
+    padding: 1.5em;
+    margin: 2em 0;
+    text-align: left;
+}
+
+.description p {
+    margin: 0;
+    color: #333;
+    line-height: 1.6;
+    font-size: 1em;
+}
+</style>
 {% endblock %}
