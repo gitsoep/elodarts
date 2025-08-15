@@ -14,6 +14,11 @@ from sqlalchemy import or_
 
 main = Blueprint('main', __name__)
 
+@main.route('/favicon.ico')
+def favicon():
+    # Serve favicon for user agents requesting it directly at /favicon.ico
+    return redirect(url_for('static', filename='favicon.ico'))
+
 def get_real_ip():
     """Get the real IP address from X-Forwarded-For header or fallback to remote_addr"""
     real_ip = request.headers.get('X-Forwarded-For', '').split(",")[0]
