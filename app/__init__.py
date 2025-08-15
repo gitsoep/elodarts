@@ -5,12 +5,51 @@ from flask_mail import Mail
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
+
+class NetherlandsFormatter(logging.Formatter):
+    """Custom formatter that uses Netherlands timezone (CET/CEST)"""
+    
+    def formatTime(self, record, datefmt=None):
+        # Netherlands timezone: UTC+1 (CET) in winter, UTC+2 (CEST) in summer
+        utc_time = datetime.fromtimestamp(record.created, tz=timezone.utc)
+        
+        # Simple approximation: Use CET (UTC+1) for winter, CEST (UTC+2) for summer
+        # Summer time in Netherlands is roughly from last Sunday in March to last Sunday in October
+        year = utc_time.year
+        
+        # Calculate last Sunday in March (start of summer time)
+        march_31 = datetime(year, 3, 31, tzinfo=timezone.utc)
+        march_last_sunday = march_31 - timedelta(days=march_31.weekday() + 1)
+        if march_31.weekday() == 6:  # If March 31 is already Sunday
+            march_last_sunday = march_31
+        
+        # Calculate last Sunday in October (end of summer time)
+        october_31 = datetime(year, 10, 31, tzinfo=timezone.utc)
+        october_last_sunday = october_31 - timedelta(days=october_31.weekday() + 1)
+        if october_31.weekday() == 6:  # If October 31 is already Sunday
+            october_last_sunday = october_31
+        
+        # Determine if it's summer time (CEST) or winter time (CET)
+        if march_last_sunday <= utc_time < october_last_sunday:
+            # Summer time: UTC+2 (CEST)
+            nl_time = utc_time + timedelta(hours=2)
+            tz_suffix = " CEST"
+        else:
+            # Winter time: UTC+1 (CET)
+            nl_time = utc_time + timedelta(hours=1)
+            tz_suffix = " CET"
+        
+        if datefmt:
+            return nl_time.strftime(datefmt) + tz_suffix
+        else:
+            return nl_time.strftime('%Y-%m-%d %H:%M:%S') + tz_suffix
 
 def create_app():
     app = Flask(__name__)
@@ -31,7 +70,7 @@ def create_app():
         
         # Set up rotating file handler
         file_handler = RotatingFileHandler('logs/elodarts.log', maxBytes=10240000, backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
+        file_handler.setFormatter(NetherlandsFormatter(
             '%(asctime)s %(levelname)s: %(message)s'
         ))
         file_handler.setLevel(logging.INFO)
