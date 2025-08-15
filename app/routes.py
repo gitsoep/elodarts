@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from .models import User, db, Match, PasswordResetToken
 from . import mail
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
 import secrets
@@ -20,6 +20,37 @@ def get_real_ip():
     if real_ip:
         return real_ip
     return request.remote_addr or 'unknown'
+
+def get_netherlands_time():
+    """Get current time in Netherlands timezone (CET/CEST)"""
+    utc_now = datetime.now(timezone.utc)
+    
+    # Simple approximation: Use CET (UTC+1) for winter, CEST (UTC+2) for summer
+    # Summer time in Netherlands is roughly from last Sunday in March to last Sunday in October
+    year = utc_now.year
+    
+    # Calculate last Sunday in March (start of summer time)
+    march_31 = datetime(year, 3, 31, tzinfo=timezone.utc)
+    march_last_sunday = march_31 - timedelta(days=march_31.weekday() + 1)
+    if march_31.weekday() == 6:  # If March 31 is already Sunday
+        march_last_sunday = march_31
+    
+    # Calculate last Sunday in October (end of summer time)
+    october_31 = datetime(year, 10, 31, tzinfo=timezone.utc)
+    october_last_sunday = october_31 - timedelta(days=october_31.weekday() + 1)
+    if october_31.weekday() == 6:  # If October 31 is already Sunday
+        october_last_sunday = october_31
+    
+    # Determine if it's summer time (CEST) or winter time (CET)
+    if march_last_sunday <= utc_now < october_last_sunday:
+        # Summer time: UTC+2 (CEST)
+        nl_time = utc_now + timedelta(hours=2)
+    else:
+        # Winter time: UTC+1 (CET)
+        nl_time = utc_now + timedelta(hours=1)
+    
+    # Return as naive datetime (remove timezone info for database storage)
+    return nl_time.replace(tzinfo=None)
 
 def log_user_action(action, user=None, extra_info=None):
     """Log user actions with IP address"""
@@ -140,8 +171,9 @@ def record_match():
         loser.elo = new_loser_elo
         
         # Update last played time
-        winner.last_played = datetime.utcnow()
-        loser.last_played = datetime.utcnow()
+        nl_time = get_netherlands_time()
+        winner.last_played = nl_time
+        loser.last_played = nl_time
         
         # Get statistics from the form
         winner_180s = int(request.form.get('winner_180s', 0))
@@ -176,7 +208,7 @@ def record_match():
             loser_id=loser.id,
             winner_elo_gain=winner_elo_gain,
             loser_elo_loss=loser_elo_loss,
-            date_played=datetime.utcnow(),
+            date_played=nl_time,
             recorded_by=current_user.id,
             winner_180s=winner_180s,
             loser_180s=loser_180s,
