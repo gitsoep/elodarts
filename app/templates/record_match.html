@@ -1,62 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
     <img src="{{ url_for('static', filename='banner-record-match.png') }}" alt="Record Match" class="logo">    
     <div class="match-form">
         <form method="POST" action="{{ url_for('main.record_match') }}" class="detailed-match-form">
+            <div class="player-selection-container">
+                <div class="player-box">
+                    <h3><i class="fas fa-crown"></i> Winner</h3>
+                    <select name="winner" required class="player-select">
+                        <option value="">Select Winner</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }} ({{ user.elo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="player-box">
+                    <h3><i class="fas fa-times-circle"></i> Loser</h3>
+                    <select name="loser" required class="player-select">
+                        <option value="">Select Loser</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }} ({{ user.elo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box-wrapper">
+                    <div class="stat-group">
+                        <label><i class="fas fa-bullseye"></i> Winner 180's:</label>
+                        <input type="number" name="winner_180s" min="0" max="10" value="0" class="stat-input">
+                    </div>
+                </div>
+                <div class="stat-box-wrapper">
+                    <div class="stat-group">
+                        <label><i class="fas fa-bullseye"></i> Loser 180's:</label>
+                        <input type="number" name="loser_180s" min="0" max="10" value="0" class="stat-input">
+                    </div>
+                </div>
+            </div>
+
             <table class="form-table">
-                <tr>
-                    <td class="player-column"><h3>Winner</h3></td>
-                    <td class="player-column"><h3>Loser</h3></td>
-                </tr>
-                <tr>
-                    <td class="player-column">
-                        <select name="winner" required class="player-select">
-                            <option value="">Select Winner</option>
-                            {% for user in users %}
-                            <option value="{{ user.id }}">{{ user.username }} ({{ user.elo }})</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td class="player-column">
-                        <select name="loser" required class="player-select">
-                            <option value="">Select Loser</option>
-                            {% for user in users %}
-                            <option value="{{ user.id }}">{{ user.username }} ({{ user.elo }})</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="player-column">
-                        <div class="stat-group">
-                            <label>180's Hit:</label>
-                            <input type="number" name="winner_180s" min="0" max="10" value="0" class="stat-input">
-                        </div>
-                    </td>
-                    <td class="player-column">
-                        <div class="stat-group">
-                            <label>180's Hit:</label>
-                            <input type="number" name="loser_180s" min="0" max="10" value="0" class="stat-input">
-                        </div>
-                    </td>
-                </tr>
                 <tr>
                     <td colspan="2">
                         <div class="finish-section">
-                            <h3>Checkout Finishes</h3>
-                            <p style="font-size:0.9em;color:#555;margin-top:-0.5em;">Add all leg-winning checkout scores. Highest winner finish stored; 100+ finishes count towards stats.</p>
+                            <h3><i class="fas fa-trophy"></i> Checkout Finishes</h3>
+                            <p style="font-size:0.95em;color:#555;margin-top:-0.5em;">Add all leg-winning checkout scores. Highest winner finish stored; 100+ finishes count towards stats.</p>
                             <div class="finishes-wrapper">
                                 <div class="finishes-column">
-                                    <h4>Winner Finishes</h4>
+                                    <h4><i class="fas fa-crown"></i> Winner Finishes</h4>
                                     <div id="winner-finishes" class="finish-list"></div>
-                                    <button type="button" class="add-finish-btn" onclick="addFinish('winner')">+ Add Finish</button>
+                                    <button type="button" class="add-finish-btn" onclick="addFinish('winner')">
+                                        <i class="fas fa-plus"></i> Add Finish
+                                    </button>
                                 </div>
                                 <div class="finishes-column">
-                                    <h4>Loser Finishes</h4>
+                                    <h4><i class="fas fa-times-circle"></i> Loser Finishes</h4>
                                     <div id="loser-finishes" class="finish-list"></div>
-                                    <button type="button" class="add-finish-btn" onclick="addFinish('loser')">+ Add Finish</button>
+                                    <button type="button" class="add-finish-btn" onclick="addFinish('loser')">
+                                        <i class="fas fa-plus"></i> Add Finish
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -64,36 +67,68 @@
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <button type="submit" class="submit-button">Record Match</button>
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-save"></i> Record Match
+                        </button>
                     </td>
                 </tr>
             </table>
         </form>
     </div>
-</div>
 
 <style>
 .detailed-match-form {
-    max-width: 800px;
+    max-width: 900px;
     margin: 2em auto;
-    background: white;
-    padding: 2em;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    background: var(--surface);
+    padding: 3em;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border-top: 3px solid var(--primary-color);
+}
+
+.player-selection-container {
+    display: flex;
+    gap: 2em;
+    margin-bottom: 2em;
+    flex-wrap: wrap;
+}
+
+.player-box {
+    flex: 1 1 300px;
+    min-width: 0;
+}
+
+.player-box h3 {
+    margin: 0 0 1em 0;
+    color: var(--text-primary);
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.stats-container {
+    display: flex;
+    gap: 2em;
+    margin-bottom: 2em;
+    flex-wrap: wrap;
+}
+
+.stat-box-wrapper {
+    flex: 1 1 300px;
+    min-width: 0;
 }
 
 .form-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 1em;
+    border-spacing: 0;
     margin: 0;
     background: transparent;
     box-shadow: none;
-    table-layout: fixed;
 }
 
 .form-table td {
-    padding: 0.5em;
+    padding: 0;
     border: none;
     vertical-align: top;
 }
@@ -102,102 +137,330 @@
     width: 50%;
 }
 
-.form-table h3 {
-    margin: 0 0 0.5em 0;
-    color: #222e50;
-    text-align: center;
-}
-
 .player-select {
     width: 100%;
-    padding: 0.75em;
-    border: 1px solid #dbe2ef;
-    border-radius: 4px;
+    padding: 1em;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
     font-size: 1em;
-    background: #f7f9fb;
+    background: var(--background);
     box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.player-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .stat-group {
-    margin: 1em 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 1em;
-    min-height: 40px;
+    min-height: 50px;
+    background: var(--background);
+    padding: 1em;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border-color);
 }
 
 .stat-group label {
-    width: 80px;
-    color: #222e50;
+    color: var(--text-primary);
     text-align: left;
     flex-shrink: 0;
+    font-weight: 600;
 }
 
 .stat-input {
-    width: 80px;
-    padding: 0.5em;
-    border: 1px solid #dbe2ef;
-    border-radius: 4px;
-    font-size: 1em;
+    width: 100px;
+    padding: 0.75em;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 1.1em;
     text-align: center;
     flex-shrink: 0;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.stat-input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .finish-section {
-    background: #f7f9fb;
-    padding: 1em;
-    border-radius: 4px;
-    margin: 1em 0;
+    background: var(--background);
+    padding: 2em;
+    border-radius: var(--radius-md);
+    margin: 1.5em 0;
     text-align: center;
+    border: 1px solid var(--border-color);
 }
 
 .finish-section h3 {
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+}
+
+.finish-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.finishes-wrapper { 
+    display: flex; 
+    gap: 2em; 
+    justify-content: center; 
+    flex-wrap: wrap; 
+    margin-top: 1.5em;
+}
+
+.finishes-column { 
+    flex: 1 1 300px; 
+    background: var(--surface); 
+    padding: 1.5em; 
+    border: 2px solid var(--border-color); 
+    border-radius: var(--radius-md); 
+    box-shadow: var(--shadow-sm);
+}
+
+.finishes-column h4 { 
+    margin: 0 0 1em 0; 
+    color: var(--text-primary); 
+    font-size: 1.2em;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5em;
+}
+
+.finish-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.75em; 
     margin-bottom: 1em;
 }
 
-.finish-stat {
-    justify-content: center;
-    align-items: center;
+.finish-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.75em;
+    background: var(--background);
+    padding: 0.5em;
+    border-radius: var(--radius-sm);
 }
 
-.finish-stat label {
-    width: auto;
-    margin-right: 1em;
-    text-align: right;
+.finish-item input { 
+    flex: 0 0 110px; 
 }
 
-/* Multi-finish additions */
-.finishes-wrapper { display:flex; gap:2em; justify-content:center; flex-wrap:wrap; }
-.finishes-column { flex:1 1 300px; background:#fff; padding:1em; border:1px solid #dbe2ef; border-radius:6px; }
-.finishes-column h4 { margin:0 0 .5em 0; color:#222e50; }
-.finish-list { display:flex; flex-direction:column; gap:.5em; }
-.finish-item { display:flex; align-items:center; gap:.5em; }
-.finish-item input { flex:0 0 90px; }
-.remove-finish-btn { background:#b02a37; color:#fff; border:none; border-radius:4px; padding:.4em .6em; cursor:pointer; font-size:.75em; }
-.remove-finish-btn:hover { background:#d13f4b; }
-.add-finish-btn { margin-top:.5em; background:#222e50; color:#fff; border:none; padding:.5em 1em; border-radius:4px; cursor:pointer; font-size:.8em; }
-.add-finish-btn:hover { background:#2d3b63; }
+.remove-finish-btn { 
+    background: var(--danger-color); 
+    color: #fff; 
+    border: none; 
+    border-radius: var(--radius-sm); 
+    padding: 0.6em 1em; 
+    cursor: pointer; 
+    font-size: 0.85em; 
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.remove-finish-btn:hover { 
+    background: #c0392b;
+    box-shadow: var(--shadow-md);
+}
+
+.add-finish-btn { 
+    margin-top: 0.75em; 
+    background: var(--primary-color); 
+    color: #fff; 
+    border: none; 
+    padding: 0.75em 1.5em; 
+    border-radius: var(--radius-sm); 
+    cursor: pointer; 
+    font-size: 0.95em; 
+    font-weight: 600;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.add-finish-btn:hover { 
+    background: var(--secondary-color);
+    box-shadow: var(--shadow-md);
+}
 
 .submit-button {
     width: 100%;
-    padding: 1em;
-    background: #222e50;
+    padding: 1.25em;
+    background: var(--success-color);
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
+    border-radius: var(--radius-md);
+    font-size: 1.2em;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: all 0.2s ease;
 }
 
 .submit-button:hover {
-    background: #2d3b63;
-    transform: translateY(-1px);
+    background: #229954;
+    box-shadow: var(--shadow-md);
 }
 
 .submit-button:active {
     transform: translateY(0);
+}
+
+/* Mobile Responsive Styles for Record Match Form */
+@media (max-width: 768px) {
+    .detailed-match-form {
+        padding: 1.5em;
+        margin: 1em;
+    }
+    
+    .player-selection-container {
+        flex-direction: column;
+        gap: 1.5em;
+    }
+    
+    .player-box {
+        flex: 1 1 auto;
+    }
+    
+    .player-box h3 {
+        font-size: 1.3em;
+        margin-bottom: 0.75em;
+    }
+    
+    .stats-container {
+        flex-direction: column;
+        gap: 1em;
+    }
+    
+    .stat-box-wrapper {
+        flex: 1 1 auto;
+    }
+    
+    .player-select {
+        font-size: 0.95em;
+    }
+    
+    .stat-group {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1em;
+    }
+    
+    .stat-group label {
+        font-size: 0.95em;
+    }
+    
+    .stat-input {
+        width: 80px;
+        font-size: 1em;
+    }
+    
+    .finish-section {
+        padding: 1.5em 1em;
+    }
+    
+    .finish-section h3 {
+        font-size: 1.2em;
+    }
+    
+    .finish-section p {
+        font-size: 0.9em;
+    }
+    
+    .finishes-wrapper {
+        flex-direction: column;
+        gap: 1.5em;
+    }
+    
+    .finishes-column {
+        flex: 1 1 auto;
+        padding: 1em;
+    }
+    
+    .finishes-column h4 {
+        font-size: 1.1em;
+    }
+    
+    .finish-item {
+        flex-wrap: wrap;
+    }
+    
+    .finish-item input {
+        flex: 1 1 120px;
+    }
+    
+    .remove-finish-btn {
+        padding: 0.5em 0.8em;
+        font-size: 0.8em;
+    }
+    
+    .add-finish-btn {
+        padding: 0.75em 1em;
+        font-size: 0.9em;
+    }
+    
+    .submit-button {
+        padding: 1em;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .detailed-match-form {
+        padding: 1em;
+        margin: 0.5em;
+    }
+    
+    .player-selection-container {
+        gap: 1em;
+    }
+    
+    .player-box h3 {
+        font-size: 1.2em;
+    }
+    
+    .stats-container {
+        gap: 0.75em;
+    }
+    
+    .stat-group {
+        padding: 0.75em;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5em;
+    }
+    
+    .stat-group label {
+        width: 100%;
+    }
+    
+    .stat-input {
+        width: 100%;
+        max-width: 150px;
+    }
+    
+    .finish-section {
+        padding: 1em 0.75em;
+    }
+    
+    .finishes-column {
+        padding: 0.75em;
+    }
+    
+    .finish-item input {
+        flex: 1 1 100px;
+    }
+    
+    .submit-button {
+        font-size: 0.95em;
+        letter-spacing: 0.5px;
+    }
 }
 </style>
 <script>

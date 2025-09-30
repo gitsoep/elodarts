@@ -1,68 +1,97 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
     <img src="{{ url_for('static', filename='banner-home.png') }}" alt="Cafejojo's Darts Ranking Logo" class="logo">    
     
-    <table>
+    <h2><i class="fas fa-ranking-star"></i> Current Rankings</h2>
+    <table class="ranking-table">
+        <thead>
         <tr>
-            <th>Rank</th>
-            <th>Username</th>
-            <th>180's</th>
-            <th>Highest Finish</th>
-            <th>ELO Rating</th>
+            <th><i class="fas fa-medal"></i> Rank</th>
+            <th><i class="fas fa-user"></i> Username</th>
+            <th><i class="fas fa-bullseye"></i> 180's</th>
+            <th><i class="fas fa-trophy"></i> Highest Finish</th>
+            <th><i class="fas fa-chart-line"></i> ELO Rating</th>
         </tr>
+        </thead>
+        <tbody>
         {% for user in users %}
         <tr>
             <td>{{ loop.index }}</td>
-            <td>{{ user.username }}</td>
+            <td><strong>{{ user.username }}</strong></td>
             <td>{{ user.one_eighties or 0 }}</td>
-            <td>{{ user.highest_finish or '-' }}</td>
-            <td>{{ user.elo }}</td>
+            <td>
+                {% if user.highest_finish %}
+                    <span style="background: var(--accent-color); color: white; padding: 0.3em 0.8em; border-radius: 15px; font-weight: 600;">
+                        {{ user.highest_finish }}
+                    </span>
+                {% else %}
+                    <span style="color: #999;">-</span>
+                {% endif %}
+            </td>
+            <td><strong style="font-size: 1.1em; color: var(--text-primary);">{{ user.elo }}</strong></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 
     <div class="description">
+        <h3><i class="fas fa-info-circle"></i> About Cafejojo's Darts Ranking</h3>
         <p>De website darts.cafejojo.nl is het online platform voor de Caféjojo's Darts Ranking. Spelers kunnen zich registreren, meedoen aan wedstrijden en hun voortgang volgen. Het systeem gebruikt een Elo-ranking om prestaties eerlijk te vergelijken, waarbij je punten wint of verliest op basis van je tegenstander en het wedstrijdresultaat. De site biedt een overzicht van ranglijsten, persoonlijke statistieken.</p>
     </div>
 
-    <h2>Last 10 Matches</h2>
+    <h2><i class="fas fa-clock"></i> Last 10 Matches</h2>
     <table>
+        <thead>
         <tr>
-            <th>Date</th>
-            <th>Winner</th>
-            <th>Loser</th>
-            <th>Winner ELO Gain</th>
-            <th>Loser ELO Loss</th>
-            <th>Recorded By</th>
+            <th><i class="far fa-calendar"></i> Date</th>
+            <th><i class="fas fa-crown"></i> Winner</th>
+            <th><i class="fas fa-times-circle"></i> Loser</th>
+            <th><i class="fas fa-arrow-up"></i> Winner ELO Gain</th>
+            <th><i class="fas fa-arrow-down"></i> Loser ELO Loss</th>
+            <th><i class="fas fa-user-check"></i> Recorded By</th>
         </tr>
+        </thead>
+        <tbody>
         {% for match in matches %}
         <tr>
             <td>{{ match.date_played.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>{{ match.winner.username }}</td>
-            <td>{{ match.loser.username }}</td>
-            <td>{{ match.winner_elo_gain }}</td>
-            <td>{{ match.loser_elo_loss }}</td>
-            <td>{{ match.recorder.username if match.recorder else 'N/A' }}</td>
+            <td><strong style="color: var(--success-color);">{{ match.winner.username }}</strong></td>
+            <td style="color: var(--text-secondary);">{{ match.loser.username }}</td>
+            <td class="positive">+{{ match.winner_elo_gain }}</td>
+            <td class="negative">{{ match.loser_elo_loss }}</td>
+            <td style="font-style: italic; color: var(--text-secondary);">{{ match.recorder.username if match.recorder else 'N/A' }}</td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
-</div>
 
 <style>
 .description {
-    background: #f7f9fb;
-    padding: 1.5em;
+    background: linear-gradient(135deg, #f7f9fb 0%, #e9ecef 100%);
+    padding: 2em;
     margin: 2em 0;
     text-align: left;
+    border-radius: var(--radius-md);
+    border-left: 5px solid var(--secondary-color);
+    box-shadow: var(--shadow-md);
+}
+
+.description h3 {
+    margin-top: 0;
+    margin-bottom: 1em;
+    color: var(--text-primary);
 }
 
 .description p {
     margin: 0;
-    color: #333;
-    line-height: 1.6;
-    font-size: 1em;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1.05em;
+}
+
+.ranking-table tbody td:first-child {
+    text-align: center;
 }
 </style>
 {% endblock %}

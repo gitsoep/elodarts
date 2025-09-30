@@ -1,17 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
     <img src="{{ url_for('static', filename='banner-player-stats.png') }}" alt="Player Statistics" class="logo">    
 
     <div class="player-select">
         <form method="GET" action="{{ url_for('main.stats') }}">
-            <label for="player">Select Player:</label>
+            <label for="player"><i class="fas fa-user-circle"></i> Select Player:</label>
             <select name="player" id="player" onchange="this.form.submit()">
                 <option value="">All Players</option>
                 {% if current_user.is_authenticated %}
                     <option value="{{ current_user.id }}" {% if selected_player and selected_player.id == current_user.id %}selected{% endif %}>
-                        {{ current_user.username }} (You)
+                        <i class="fas fa-star"></i> {{ current_user.username }} (You)
                     </option>
                 {% endif %}
                 {% for user in users %}
@@ -27,9 +26,9 @@
 
     {% if selected_player %}
         <h2>
-            {{ selected_player.username }}'s Statistics
+            <i class="fas fa-chart-bar"></i> {{ selected_player.username }}'s Statistics
             {% if current_user.is_authenticated and selected_player.id == current_user.id %}
-                <span class="your-stats-badge">Your Stats</span>
+                <span class="your-stats-badge"><i class="fas fa-star"></i> Your Stats</span>
             {% endif %}
         </h2>
         
@@ -40,30 +39,33 @@
         
         <div class="stats-grid">
             <div class="stat-box">
-                <h3>Overall</h3>
-                <p>Matches Played: {{ selected_player.matches_played }}</p>
-                <p>Wins: {{ selected_player.matches_won }}</p>
-                <p>Losses: {{ selected_player.matches_lost }}</p>
-                <p>Win Rate: {{ "%.1f"|format(selected_player.matches_won / selected_player.matches_played * 100 if selected_player.matches_played > 0 else 0) }}%</p>
-                <p>Current ELO: {{ selected_player.elo }}</p>
+                <h3><i class="fas fa-gamepad"></i> Overall Performance</h3>
+                <p><i class="fas fa-chess"></i> Matches Played: <strong>{{ selected_player.matches_played }}</strong></p>
+                <p><i class="fas fa-trophy"></i> Wins: <strong style="color: var(--success-color);">{{ selected_player.matches_won }}</strong></p>
+                <p><i class="fas fa-times-circle"></i> Losses: <strong style="color: var(--danger-color);">{{ selected_player.matches_lost }}</strong></p>
+                <p><i class="fas fa-percent"></i> Win Rate: <strong>{{ "%.1f"|format(selected_player.matches_won / selected_player.matches_played * 100 if selected_player.matches_played > 0 else 0) }}%</strong></p>
+                <p><i class="fas fa-chart-line"></i> Current ELO: <strong style="color: var(--text-primary); font-size: 1.2em;">{{ selected_player.elo }}</strong></p>
             </div>
             <div class="stat-box">
-                <h3>Achievements</h3>
-                <p>180's: {{ selected_player.one_eighties }}</p>
-                <p>180's per Match: {{ "%.2f"|format(selected_player.one_eighties / selected_player.matches_played if selected_player.matches_played > 0 else 0) }}</p>
-                <p>100+ Finishes: {{ selected_player.high_finishes }}</p>
-                <p>Highest Finish: {{ selected_player.highest_finish }}</p>
+                <h3><i class="fas fa-medal"></i> Achievements</h3>
+                <p><i class="fas fa-bullseye"></i> 180's: <strong>{{ selected_player.one_eighties }}</strong></p>
+                <p><i class="fas fa-chart-area"></i> 180's per Match: <strong>{{ "%.2f"|format(selected_player.one_eighties / selected_player.matches_played if selected_player.matches_played > 0 else 0) }}</strong></p>
+                <p><i class="fas fa-star"></i> 100+ Finishes: <strong>{{ selected_player.high_finishes }}</strong></p>
+                <p><i class="fas fa-crown"></i> Highest Finish: <strong style="background: var(--accent-color); color: white; padding: 0.3em 0.8em; border-radius: 15px;">{{ selected_player.highest_finish }}</strong></p>
             </div>
         </div>
 
-        <h3>Recent High Finishes</h3>
+        <h3><i class="fas fa-trophy"></i> Recent High Finishes</h3>
         <table>
+            <thead>
             <tr>
-                <th>Date</th>
-                <th>Your Finishes</th>
-                <th>Opponent</th>
-                <th>Match result</th>
+                <th><i class="far fa-calendar"></i> Date</th>
+                <th><i class="fas fa-bullseye"></i> Your Finishes</th>
+                <th><i class="fas fa-user"></i> Opponent</th>
+                <th><i class="fas fa-flag"></i> Match result</th>
             </tr>
+            </thead>
+            <tbody>
             {% for match in high_finishes %}
                 <tr>
                     <td>{{ match.date_played.strftime('%Y-%m-%d') }}</td>
@@ -73,7 +75,7 @@
                                 {% set wfin = match.winner_finishes.split(',')|map('int')|list %}
                                 {% set whigh = wfin|max %}
                                 {% for f in wfin %}
-                                    <span{% if f==whigh %} style="font-weight:bold;" title="Highest finish"{% endif %}>{{ f }}</span>{% if not loop.last %}, {% endif %}
+                                    <span{% if f==whigh %} style="font-weight:bold; background: var(--accent-color); color: white; padding: 0.2em 0.6em; border-radius: 12px;" title="Highest finish"{% endif %}>{{ f }}</span>{% if not loop.last %}, {% endif %}
                                 {% endfor %}
                             {% else %}
                                 {{ match.winning_finish }}
@@ -83,69 +85,85 @@
                                 {% set lfin = match.loser_finishes.split(',')|map('int')|list %}
                                 {% set lhigh = lfin|max %}
                                 {% for f in lfin %}
-                                    <span{% if f==lhigh %} style="font-weight:bold;" title="Highest finish (loss)"{% endif %}>{{ f }}</span>{% if not loop.last %}, {% endif %}
+                                    <span{% if f==lhigh %} style="font-weight:bold; background: var(--danger-color); color: white; padding: 0.2em 0.6em; border-radius: 12px;" title="Highest finish (loss)"{% endif %}>{{ f }}</span>{% if not loop.last %}, {% endif %}
                                 {% endfor %}
                             {% else %}-{% endif %}
                         {% endif %}
                     </td>
                     <td>{{ match.loser.username if match.winner_id == selected_player.id else match.winner.username }}</td>
-                    <td>{% if match.winner_id == selected_player.id %}Win{% else %}Loss{% endif %}</td>
+                    <td>
+                        {% if match.winner_id == selected_player.id %}
+                            <span style="color: var(--success-color); font-weight: 700;"><i class="fas fa-check-circle"></i> Win</span>
+                        {% else %}
+                            <span style="color: var(--danger-color); font-weight: 700;"><i class="fas fa-times-circle"></i> Loss</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
+            </tbody>
             </table>
 
-        <h3>Recent 180s</h3>
+        <h3><i class="fas fa-bullseye"></i> Recent 180s</h3>
         <table>
+            <thead>
             <tr>
-                <th>Date</th>
-                <th>Match</th>
-                <th>180s in Match</th>
+                <th><i class="far fa-calendar"></i> Date</th>
+                <th><i class="fas fa-handshake"></i> Match</th>
+                <th><i class="fas fa-bullseye"></i> 180s in Match</th>
             </tr>
+            </thead>
+            <tbody>
             {% for match in recent_180s %}
             <tr>
                 <td>{{ match.date_played.strftime('%Y-%m-%d') }}</td>
                 <td>
                     {% if match.winner_id == selected_player.id %}
-                        vs {{ match.loser.username }} (Won)
+                        vs {{ match.loser.username }} <span style="color: var(--success-color); font-weight: 700;">(Won)</span>
                     {% else %}
-                        vs {{ match.winner.username }} (Lost)
+                        vs {{ match.winner.username }} <span style="color: var(--danger-color); font-weight: 700;">(Lost)</span>
                     {% endif %}
                 </td>
                 <td>
+                    <strong style="font-size: 1.1em; color: var(--secondary-color);">
                     {% if match.winner_id == selected_player.id %}
                         {{ match.winner_180s }}
                     {% else %}
                         {{ match.loser_180s }}
                     {% endif %}
+                    </strong>
                 </td>
             </tr>
             {% endfor %}
+            </tbody>
         </table>
 
     {% else %}
-        <h2>Overall Statistics</h2>
+        <h2><i class="fas fa-chart-pie"></i> Overall Statistics</h2>
         <table>
+            <thead>
             <tr>
-                <th>Player</th>
-                <th>Matches</th>
-                <th>Win Rate</th>
-                <th>180s</th>
-                <th>100+ Finishes</th>
-                <th>Current ELO</th>
+                <th><i class="fas fa-user"></i> Player</th>
+                <th><i class="fas fa-gamepad"></i> Matches</th>
+                <th><i class="fas fa-percent"></i> Win Rate</th>
+                <th><i class="fas fa-bullseye"></i> 180s</th>
+                <th><i class="fas fa-star"></i> 100+ Finishes</th>
+                <th><i class="fas fa-chart-line"></i> Current ELO</th>
             </tr>
+            </thead>
+            <tbody>
             {% for user in users %}
             <tr>
-                <td><a href="{{ url_for('main.stats', player=user.id) }}">{{ user.username }}</a></td>
+                <td><a href="{{ url_for('main.stats', player=user.id) }}" style="color: var(--accent-color); font-weight: 600; text-decoration: none;"><i class="fas fa-arrow-right"></i> {{ user.username }}</a></td>
                 <td>{{ user.matches_played }}</td>
                 <td>{{ "%.1f"|format(user.matches_won / user.matches_played * 100 if user.matches_played > 0 else 0) }}%</td>
                 <td>{{ user.one_eighties }}</td>
                 <td>{{ user.high_finishes }}</td>
-                <td>{{ user.elo }}</td>
+                <td><strong style="color: var(--text-primary);">{{ user.elo }}</strong></td>
             </tr>
             {% endfor %}
+            </tbody>
         </table>
     {% endif %}
-</div>
 
 <style>
 .player-select {
@@ -153,38 +171,65 @@
     text-align: center;
 }
 
+.player-select form {
+    display: inline-flex;
+    align-items: center;
+    gap: 1em;
+    background: var(--surface);
+    padding: 1.5em 2em;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.player-select label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.1em;
+}
+
 .player-select select {
-    padding: 0.5em;
+    padding: 0.75em 1.25em;
     font-size: 1em;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-left: 0.5em;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-left: 0;
+    background: var(--background);
+    min-width: 250px;
+    transition: all 0.3s ease;
+}
+
+.player-select select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .your-stats-badge {
-    background: #667eea;
+    background: var(--accent-color);
     color: white;
-    padding: 0.3em 0.8em;
-    border-radius: 15px;
-    font-size: 0.7em;
-    font-weight: normal;
-    margin-left: 0.5em;
+    padding: 0.4em 1em;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-left: 0.75em;
     vertical-align: middle;
+    box-shadow: var(--shadow-sm);
 }
 
 .chart-container {
-    background: white;
-    padding: 2em;
+    background: var(--surface);
+    padding: 2.5em;
     margin: 2em 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     min-height: 500px;
+    border-top: 3px solid var(--accent-color);
 }
 
 .chart-container h3 {
-    margin-bottom: 1em;
-    color: #222e50;
+    margin-bottom: 1.5em;
+    color: var(--text-primary);
     text-align: center;
+    font-size: 1.5em;
 }
 
 #eloChart {
@@ -195,52 +240,92 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2em;
-    margin: 2em 0;
+    margin: 2.5em 0;
 }
 
 .stat-box {
-    background: #f7f9fb;
-    padding: 1.5em;
-    border-radius: 8px;
-    border-left: 4px solid #222e50;
+    background: var(--surface);
+    padding: 2.5em;
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--accent-color);
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+}
+
+.stat-box:hover {
+    box-shadow: var(--shadow-lg);
 }
 
 .stat-box h3 {
-    margin-bottom: 1em;
-    color: #222e50;
+    margin-bottom: 1.5em;
+    color: var(--text-primary);
+    font-size: 1.5em;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.75em;
 }
 
 .stat-box p {
-    margin: 0.5em 0;
-    color: #333;
+    margin: 1em 0;
+    color: var(--text-secondary);
+    font-size: 1.1em;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.5em 0;
+    border-bottom: 1px solid #f1f3f5;
+    text-align: left;
+    gap: 0.5em;
+}
+
+.stat-box p:last-child {
+    border-bottom: none;
+}
+
+.stat-box p strong {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-left: auto;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1em 0;
-    background: white;
-    border-radius: 8px;
+    margin: 2em 0;
+    background: var(--surface);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
 }
 
 table th, table td {
-    padding: 1em;
+    padding: 1.25em;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 table th {
-    background: #f7f9fb;
-    color: #222e50;
-    font-weight: bold;
+    background: #2f3640;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9em;
 }
 
-table tr:hover {
-    background: #f9f9f9;
+tbody tr {
+    transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+    background: rgba(102, 126, 234, 0.05);
+    transform: scale(1.01);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
 }
 </style>
 

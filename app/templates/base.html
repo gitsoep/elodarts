@@ -1,54 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cafejojo's Darts Ranking</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
     <nav>
-        <div>
-            <a href="{{ url_for('main.home') }}"><strong>Ranking</strong></a>
+        <div style="display: flex; align-items: center; gap: 0.5em;">
+            <a href="{{ url_for('main.home') }}"><i class="fas fa-trophy"></i> <strong>Ranking</strong></a>
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('main.record') }}" class="record-link">Record Match</a>
+            <a href="{{ url_for('main.record') }}" class="record-link"><i class="fas fa-plus-circle"></i> Record Match</a>
             {% endif %}
-            <a href="{{ url_for('main.matches') }}">Match History</a>
-            <a href="{{ url_for('main.stats') }}">Statistics</a>
+            <a href="{{ url_for('main.matches') }}"><i class="fas fa-history"></i> Match History</a>
+            <a href="{{ url_for('main.stats') }}"><i class="fas fa-chart-line"></i> Statistics</a>
+        </div>
+        <div>
             {% if current_user.is_authenticated %}
                 <!-- User Dropdown -->
                 <div class="user-dropdown">
-                    <span class="username-toggle">{{ current_user.username }} ▼</span>
+                    <span class="username-toggle"><i class="fas fa-user-circle"></i> {{ current_user.username }} <i class="fas fa-chevron-down"></i></span>
                     <div class="dropdown-content">
-                        <a href="{{ url_for('main.edit_profile') }}" class="profile-link">Edit Profile</a>
-                        <a href="{{ url_for('main.change_password') }}" class="profile-link">Change Password</a>
+                        <a href="{{ url_for('main.edit_profile') }}" class="profile-link"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                        <a href="{{ url_for('main.change_password') }}" class="profile-link"><i class="fas fa-key"></i> Change Password</a>
                         {% if current_user.admin %}
-                        <a href="{{ url_for('main.admin') }}" class="admin-link">Management</a>
+                        <a href="{{ url_for('main.admin') }}" class="admin-link"><i class="fas fa-cog"></i> Management</a>
                         {% endif %}
-                        <a href="{{ url_for('main.logout') }}">Logout</a>
+                        <a href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
                 </div>
             {% else %}
-                <a href="{{ url_for('main.login') }}">Login/Register</a>
+                <a href="{{ url_for('main.login') }}" style="background: rgba(255,255,255,0.2); padding: 0.75em 1.5em;"><i class="fas fa-sign-in-alt"></i> Login/Register</a>
             {% endif %}
         </div>
     </nav>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
-                <div class="flash">{{ message }}</div>
+                <div class="flash"><i class="fas fa-info-circle"></i> {{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
+    
+    <div class="container">
     {% block content %}{% endblock %}
+    </div>
 
     <footer class="site-footer">
         <div class="footer-content">
-            <p>&copy; 2025 by Soep. All rights reserved.</p>
+            <p><i class="fas fa-copyright"></i> 2025 by Soep. All rights reserved.</p>
+            <p style="font-size: 0.8em; margin-top: 0.5em; opacity: 0.7;">Made with <i class="fas fa-heart" style="color: #ff6b6b;"></i> for dart enthusiasts</p>
         </div>
     </footer>
-
-    </div>
 
     <style>
     .user-dropdown {
@@ -58,14 +65,19 @@
 
     .username-toggle {
         cursor: pointer;
-        padding: 0.5em 1em;
-        background: lightslategray;
-        border-radius: 4px;
+        padding: 0.75em 1.5em;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50px;
         user-select: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
     }
 
     .username-toggle:hover {
-        background: #e0e0e0;
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
     }
 
     .dropdown-content {
@@ -73,19 +85,25 @@
         position: absolute;
         right: 0;
         background-color: white;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        border-radius: 4px;
-        z-index: 1;
-        border: 1px solid #ddd;
+        min-width: 200px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        z-index: 1000;
+        border: 2px solid #e9ecef;
+        margin-top: 0.5em;
+        overflow: hidden;
     }
 
     .dropdown-content a {
         color: #333;
-        padding: 12px 16px;
+        padding: 14px 20px;
         text-decoration: none;
-        display: block;
-        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 0.75em;
+        border-bottom: 1px solid #f1f3f5;
+        transition: all 0.2s ease;
+        margin: 0;
     }
 
     .dropdown-content a:last-child {
@@ -93,33 +111,47 @@
     }
 
     .dropdown-content a:hover {
-        background-color: #f1f1f1;
+        background: var(--accent-color);
+        color: white;
     }
 
     .user-dropdown:hover .dropdown-content {
         display: block;
+        animation: dropdownSlide 0.3s ease-out;
+    }
+
+    @keyframes dropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .site-footer {
-        background: #222e50;
+        background: #2f3640;
         color: #fff;
-        padding: 1em 0;
-        margin: 0 auto 0 auto;
+        padding: 2em 0;
+        margin: 3em auto 0 auto;
         text-align: center;
-        border-top: 1px solid #dbe2ef;
-        max-width: 900px;
+        border-top: 3px solid var(--secondary-color);
+        max-width: 1100px;
+        border-radius: 12px 12px 0 0;
     }
 
     .footer-content {
-        max-width: 900px;
+        max-width: 1100px;
         margin: 0 auto;
-        padding: 0 1em;
+        padding: 0 2em;
     }
 
     .footer-content p {
-        margin: 0;
-        font-size: 0.9em;
-        opacity: 0.8;
+        margin: 0.25em 0;
+        font-size: 0.95em;
+        opacity: 0.9;
     }
     </style>
 
