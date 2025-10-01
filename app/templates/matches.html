@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <img src="{{ url_for('static', filename='banner-match-history.png') }}" alt="Match History" class="logo">    
-    
     <div class="filters">
         <form method="GET" action="{{ url_for('main.matches') }}">
             <label for="player"><i class="fas fa-filter"></i> Filter by Player:</label>

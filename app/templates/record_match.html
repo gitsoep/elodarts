@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <img src="{{ url_for('static', filename='banner-record-match.png') }}" alt="Record Match" class="logo">    
     <div class="match-form">
         <form method="POST" action="{{ url_for('main.record_match') }}" class="detailed-match-form">
             <div class="player-selection-container">
