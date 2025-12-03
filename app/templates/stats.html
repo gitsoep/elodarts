@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <img src="{{ url_for('static', filename='banner-player-stats.png') }}" alt="Player Statistics" class="logo">    
-
     <div class="player-select">
         <form method="GET" action="{{ url_for('main.stats') }}">
             <label for="player"><i class="fas fa-user-circle"></i> Select Player:</label>
