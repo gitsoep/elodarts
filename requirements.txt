@@ -5,4 +5,4 @@ flask-mail==0.9.1
 werkzeug==3.1.6
 python-dotenv==1.0.0
 gunicorn==22.0.0
-blinker==1.7.0
+blinker==1.9.0
