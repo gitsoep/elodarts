@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from .models import User, db, Match, PasswordResetToken
-from . import mail
+from . import mail, limiter
 from datetime import datetime, timezone, timedelta
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -107,6 +107,7 @@ def register():
     return render_template('register.html')
 
 @main.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
         identifier = request.form['username']
@@ -247,6 +248,7 @@ def admin():
 
 @main.route('/admin/enable_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def enable_user(user_id):
     if not current_user.admin:
         flash('Admin access required.')

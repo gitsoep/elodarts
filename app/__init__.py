@@ -1,7 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_limiter import Limiter
 from flask_mail import Mail
+from flask_wtf.csrf import CSRFProtect
 import os
 import logging
 from logging.handlers import RotatingFileHandler
@@ -11,7 +13,15 @@ from dotenv import load_dotenv
 load_dotenv()
 db = SQLAlchemy()
 login_manager = LoginManager()
+
+def _get_real_ip():
+    from flask import request
+    real_ip = request.headers.get('X-Forwarded-For', '').split(",")[0].strip()
+    return real_ip or request.remote_addr or '127.0.0.1'
+
+limiter = Limiter(key_func=_get_real_ip)
 mail = Mail()
+csrf = CSRFProtect()
 
 class NetherlandsFormatter(logging.Formatter):
     """Custom formatter that uses Netherlands timezone (CET/CEST)"""
@@ -82,6 +92,8 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'main.login'
+    limiter.init_app(app)
+    csrf.init_app(app)
     
     from .routes import main
     app.register_blueprint(main)

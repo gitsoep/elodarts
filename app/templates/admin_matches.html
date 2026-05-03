@@ -48,6 +48,7 @@
             <td class="recorder">{{ match.recorder.username if match.recorder else 'N/A' }}</td>
             <td class="actions">
                 <form method="POST" action="{{ url_for('main.admin_delete_match', match_id=match.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this match? This will restore ELO points to both players.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="action-btn delete-match" title="Delete Match">🗑️ Delete</button>
                 </form>
             </td>
