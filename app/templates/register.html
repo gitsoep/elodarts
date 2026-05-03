@@ -8,6 +8,7 @@
     </div>
 
     <form method="POST" class="lined-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <table class="form-table">
             <tr>
                 <td><label for="username">Username:</label></td>

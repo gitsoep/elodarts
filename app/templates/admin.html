@@ -38,6 +38,7 @@
             </td>
             <td>
                 <form method="POST" action="{{ url_for('main.admin_set_elo', user_id=user.id) }}" class="inline-form elo-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <input type="number" name="elo" value="{{ user.elo }}" class="elo-input">
                     <button type="submit" class="action-btn update-elo" title="Update ELO">✓</button>
                 </form>
@@ -46,10 +47,12 @@
             <td class="actions">
                 {% if not user.enabled %}
                 <form method="POST" action="{{ url_for('main.admin_enable_user', user_id=user.id) }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="action-btn enable">Enable</button>
                 </form>
                 {% else %}
                 <form method="POST" action="{{ url_for('main.admin_disable_user', user_id=user.id) }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="action-btn disable">Disable</button>
                 </form>
                 {% endif %}
@@ -57,16 +60,19 @@
                 {% if current_user.id == 1 %}
                 {% if not user.admin %}
                 <form method="POST" action="{{ url_for('main.admin_make_admin', user_id=user.id) }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="action-btn make-admin">Make Admin</button>
                 </form>
                 {% else %}
                 <form method="POST" action="{{ url_for('main.admin_remove_admin', user_id=user.id) }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="action-btn remove-admin">Remove Admin</button>
                 </form>
                 {% endif %}
 
                 <!-- Remove User Button -->
                 <form method="POST" action="{{ url_for('main.admin_remove_user', user_id=user.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to remove this user?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="action-btn reset" title="Remove User">Remove</button>
                 </form>
                 {% endif %}

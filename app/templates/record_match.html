@@ -3,6 +3,7 @@
 {% block content %}
     <div class="match-form">
         <form method="POST" action="{{ url_for('main.record_match') }}" class="detailed-match-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="player-selection-container">
                 <div class="player-box">
                     <h3><i class="fas fa-crown"></i> Winner</h3>

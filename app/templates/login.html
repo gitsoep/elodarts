@@ -4,6 +4,7 @@
 <div class="auth-container">
     <h1><i class="fas fa-sign-in-alt"></i> Login</h1>
     <form method="POST" class="lined-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <table class="form-table">
             <tr>
                 <td><label for="username"><i class="fas fa-user"></i> Username:</label></td>

@@ -6,6 +6,7 @@
     
     <div class="form-container">
         <form method="POST" class="profile-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" value="{{ current_user.username }}" required>
